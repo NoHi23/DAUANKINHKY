@@ -32,7 +32,27 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  list-style: none;
+  border: none;
+  outline: none;
+  scroll-behavior: smooth;
+  background: var(--bg-color) !important;
+  color: var(--text-color);
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --bg-color: #FFFFF0;
+  --text-color: #E34234;
 }
