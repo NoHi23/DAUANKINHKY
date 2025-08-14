@@ -1,0 +1,401 @@
+/* ===== NAVBAR CHUNG ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 999;
+}
+
+/* Ẩn account menu ở màn hình lớn */
+.account-menu {
+  display: none;
+}
+
+.logo img {
+  height: 60px;
+  margin-right: 5px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  transition: max-height 0.4s ease;
+}
+
+.nav-links li {
+  margin: 0 10px;
+  position: relative;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  padding-bottom: 28px;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text-color);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  height: 3px;
+  background-color: var(--text-color);
+  width: 100%;
+}
+
+/* ===== CONTACT ICONS ===== */
+.contact {
+  display: flex;
+  align-items: center;
+}
+
+.hotline span {
+  margin-right: 20px;
+  color: #333;
+  font-size: 16px;
+}
+
+.contact-btn {
+  background-color: var(--text-color);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.contact-btn:hover {
+  background-color: var(--text-color-2);
+}
+
+.contact i {
+  font-size: 18px;
+  margin-left: 10px;
+  color: #333;
+  cursor: pointer;
+}
+
+.contact i:hover {
+  color: var(--text-color);
+}
+
+/* ===== HAMBURGER BUTTON ===== */
+.hamburger {
+  display: none;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+/* ===== TABLET và MOBILE LỚN ===== */
+@media screen and (max-width: 1024px) {
+  .account-menu {
+    display: block;
+    /* Hiện lại trong menu trượt */
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    padding-bottom: 5px;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+  .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 20%;
+    gap: 10px;
+  }
+
+  /* Menu dạng trượt giống mobile */
+  .nav-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 70%;
+    /* vẫn chiếm 70% */
+    flex-direction: column;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    padding-top: 20px;
+  }
+
+  .nav-links.show {
+    transform: translateX(0);
+  }
+
+  .nav-links li {
+    margin: 15px 0;
+    text-align: left;
+    padding-left: 20px;
+  }
+
+  /* Overlay cho tablet */
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    display: none;
+  }
+
+  .menu-overlay.show {
+    display: block;
+  }
+
+  .account-menu .sub-menu {
+    display: none;
+    background: #111;
+    padding-left: 20px;
+  }
+
+  .account-menu:hover .sub-menu {
+    display: block;
+  }
+
+  .account-menu .sub-menu a {
+    display: block;
+    padding: 5px 0;
+    color: #ccc;
+    text-decoration: none;
+  }
+
+  .account-menu .sub-menu a:hover {
+    color: #fff;
+  }
+
+  .hamburger {
+    display: block;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 26px;
+    cursor: pointer;
+  }
+
+  /* Ẩn hotline để gọn */
+  .hotline {
+    display: none;
+  }
+
+  /* Ẩn user ở ngoài, đưa vào menu */
+  .contact .fa-user {
+    display: none;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media screen and (max-width: 768px) {
+  .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 30%;
+    gap: 10px;
+  }
+
+
+  .nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    padding-bottom: 5px;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+
+  .account-menu {
+    display: block;
+    /* Hiện lại trong menu trượt */
+  }
+
+  .account-menu .sub-menu {
+    display: none;
+    background: #111;
+    padding-left: 20px;
+  }
+
+  .account-menu:hover .sub-menu {
+    display: block;
+  }
+
+  .account-menu .sub-menu a {
+    display: block;
+    padding: 5px 0;
+    color: #ccc;
+    text-decoration: none;
+  }
+
+  .account-menu .sub-menu a:hover {
+    color: #fff;
+  }
+
+  .contact .fa-user {
+    display: none;
+  }
+
+  .contact {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .contact i {
+    font-size: 16px;
+    /* Nhỏ hơn để vừa mobile */
+    margin-left: 15px;
+  }
+
+  .hotline {
+    display: none;
+    /* Ẩn số hotline trên mobile nếu muốn gọn */
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 70%;
+    /* chỉ chiếm 70% màn hình */
+    flex-direction: column;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    padding-top: 20px;
+  }
+
+  .nav-links.show {
+    transform: translateX(0);
+  }
+
+  .nav-links li {
+    margin: 15px 0;
+    text-align: left;
+    padding-left: 20px;
+  }
+
+  /* Overlay */
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    display: none;
+  }
+
+  .menu-overlay.show {
+    display: block;
+  }
+
+  .hamburger {
+    display: block;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+/* ===== MÀN HÌNH NHỎ HƠN 480PX ===== */
+@media screen and (max-width: 480px) {
+  .logo img {
+    height: 45px;
+    /* Nhỏ hơn nữa cho vừa */
+  }
+
+
+  .nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    padding-bottom: 5px;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+
+  .account-menu {
+    display: block;
+    /* Hiện lại trong menu trượt */
+  }
+
+  .nav-links {
+    width: 70%;
+    /* Giữ nguyên 70% */
+    padding-top: 15px;
+  }
+
+  .nav-links li {
+    margin: 12px 0;
+    padding-left: 15px;
+    /* Thu hẹp padding */
+  }
+
+  .nav-links a {
+    font-size: 14px;
+    /* Chữ nhỏ hơn */
+  }
+
+  .account-menu {
+    font-size: 15px;
+    padding: 8px 15px;
+  }
+
+  .account-menu .sub-menu a {
+    font-size: 14px;
+    padding: 4px 0;
+  }
+
+  .hamburger {
+    font-size: 24px;
+    left: 10px;
+  }
+
+  .contact i {
+    font-size: 15px;
+    margin-left: 12px;
+  }
+
+  /* Overlay vẫn giữ chung */
+  .menu-overlay {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
