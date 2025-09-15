@@ -1,0 +1,63 @@
+.order-history-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.order-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.order-header,
+.order-footer {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+}
+
+.order-body {
+  padding: 20px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.status {
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background-color: #f39c12;
+}
+
+.status-processing {
+  background-color: #3498db;
+}
+
+.status-shipped {
+  background-color: #2ecc71;
+}
+
+.status-delivered {
+  background-color: #1abc9c;
+}
+
+.status-cancelled {
+  background-color: #e74c3c;
+}

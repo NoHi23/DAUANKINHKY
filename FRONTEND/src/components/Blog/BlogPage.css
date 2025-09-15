@@ -1,0 +1,47 @@
+.blog-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.create-post-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+.create-post-form textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.post-item {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+.post-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.post-author img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.post-content {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+.post-actions {
+    color: #555;
+}

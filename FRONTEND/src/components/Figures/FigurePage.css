@@ -1,0 +1,107 @@
+.figure-list-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.figure-list-container h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+}
+
+.figure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.figure-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    color: white;
+    text-decoration: none;
+    display: block;
+    height: 400px;
+}
+
+.figure-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%);
+}
+
+.figure-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.figure-card:hover img {
+    transform: scale(1.05);
+}
+
+.figure-card-info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+/* --- CSS cho trang chi tiết --- */
+.figure-detail-container {
+    margin: 0 auto;
+}
+
+.figure-hero {
+    height: 60vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.figure-hero img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+.figure-hero::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: -1;
+}
+
+.figure-hero h1 {
+    font-size: 4rem;
+}
+
+.figure-detail-content {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    line-height: 1.8;
+}
+
+.related-products {
+    margin-top: 50px;
+}
+.related-products h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
