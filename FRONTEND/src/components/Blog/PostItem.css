@@ -1,0 +1,26 @@
+/* Dùng chung CSS với BlogPage.css, chỉ thêm phần cho nút like */
+.like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    padding: 0;
+    font-size: inherit;
+}
+.like-button.liked, .like-button.liked i {
+    color: #e74c3c; /* Màu đỏ khi đã thích */
+    font-weight: bold;
+}
+.post-actions {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+.comment-link {
+    color: #555;
+    text-decoration: none;
+}
+.post-content-link {
+    text-decoration: none;
+    color: inherit;
+}
