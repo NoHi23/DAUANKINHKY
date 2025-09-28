@@ -14,18 +14,14 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Hứng kết quả trả về từ hàm login, trong đó có thông tin user
       const response = await login(email, password);
       const loggedInUser = response.data.user;
 
       notifySuccess(`Chào mừng ${loggedInUser.name} đã quay trở lại!`);
 
-      // === PHÂN LUỒNG DỰA TRÊN VAI TRÒ (ROLE) ===
       if (loggedInUser.role === 'admin' || loggedInUser.role === 'moderator') {
-        // Nếu là admin hoặc mod, chuyển đến trang quản lý đơn hàng
         navigate('/admin/orders');
       } else {
-        // Nếu là user thường, về trang chủ
         navigate('/');
       }
 

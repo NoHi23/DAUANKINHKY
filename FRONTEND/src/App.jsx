@@ -61,6 +61,7 @@ function App() {
               theme="light"
             />
             <Navbar />
+            <div className="main-content">
             <Routes>
               <Route path='/' element={<HomePage />} />
               <Route path='/products' element={<ProductListPage />} />
@@ -101,6 +102,7 @@ function App() {
               </Route>
 
             </Routes>
+            </div>
             <Footer />
             <BackToTopButton />
           </CartProvider>
