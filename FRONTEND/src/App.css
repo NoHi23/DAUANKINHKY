@@ -46,7 +46,10 @@ body {
   font-family: Arial, sans-serif;
   position: relative;
   padding-top: 7%;
-  margin: 0px 100px;
+}
+
+.main-content {        
+  margin: 0 100px;     
 }
 
 body::before {

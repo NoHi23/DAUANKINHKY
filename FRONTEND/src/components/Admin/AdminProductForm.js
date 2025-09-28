@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import './AdminForm.css'; // CSS dùng chung cho các form admin
+import './AdminForm.css'; 
 
 const AdminProductForm = () => {
-    const { id } = useParams(); // Lấy id từ URL, nếu có
+    const { id } = useParams();
     const navigate = useNavigate();
-    const isEditing = Boolean(id); // Xác định đang sửa hay thêm mới
+    const isEditing = Boolean(id); 
 
     const [product, setProduct] = useState({
         name: '',
@@ -14,21 +14,19 @@ const AdminProductForm = () => {
         description: '',
         price: 0,
         stockQuantity: 0,
-        images: [''], // Bắt đầu với một ảnh
+        images: [''], 
         historicalFigure: '',
         isActive: true,
     });
     const [historicalFigures, setHistoricalFigures] = useState([]);
 
     useEffect(() => {
-        // Lấy danh sách các nhân vật lịch sử để làm dropdown
         const fetchFigures = async () => {
             const response = await api.get('/figures');
             setHistoricalFigures(response.data);
         };
         fetchFigures();
 
-        // Nếu là trang sửa, lấy thông tin sản phẩm
         if (isEditing) {
             const fetchProduct = async () => {
                 const response = await api.get(`/products/${id}`);
@@ -66,7 +64,7 @@ const AdminProductForm = () => {
                 await api.post('/products', product);
                 alert('Thêm sản phẩm thành công!');
             }
-            navigate('/admin/products'); // Quay về trang danh sách
+            navigate('/admin/products');
         } catch (error) {
             console.error("Lỗi khi lưu sản phẩm:", error);
             alert('Đã có lỗi xảy ra.');

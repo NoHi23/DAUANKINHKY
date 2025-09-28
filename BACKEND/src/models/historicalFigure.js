@@ -6,24 +6,24 @@ const historicalFigureSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  period: { // Thời kỳ/Giai đoạn lịch sử
+  period: { 
     type: String, 
     required: true 
   },
-  bio: { // Tiểu sử, mô tả chi tiết
+  bio: { 
     type: String, 
     required: true 
   },
-  mainImage: { // Ảnh chân dung hoặc ảnh chính
+  mainImage: { 
     type: String, 
     required: true 
   },
-  podcast: [{ // Danh sách các tập podcast liên quan
+  podcast: [{ 
     title: String,
     audioUrl: String,
-    duration: Number // tính bằng giây
+    duration: Number 
   }],
-  gallery: [String] // Một album ảnh các hình ảnh liên quan
+  gallery: [String] 
 }, {
   timestamps: true
 });

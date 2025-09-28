@@ -4,8 +4,6 @@ import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import './Auth.css';
 import { notifySuccess, notifyError } from '../../services/notificationService';
-
-// 1. Import component FullScreenLoader
 import FullScreenLoader from '../../components/Common/FullScreenLoader';
 
 const RegisterPage = () => {
@@ -61,7 +59,7 @@ const RegisterPage = () => {
             notifySuccess('Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.');
             setTimeout(() => {
                 navigate('/login');
-            }, 2000);
+            }, 1000);
 
         } catch (err) {
             console.error(err);

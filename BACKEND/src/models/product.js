@@ -18,22 +18,21 @@ const productSchema = new mongoose.Schema({
     type: Number, 
     required: true 
   },
-  stockQuantity: { // Số lượng trong kho
+  stockQuantity: { 
     type: Number, 
     required: true, 
     default: 0 
   },
-  images: [String], // Danh sách URL các hình ảnh sản phẩm
+  images: [String], 
   historicalFigure: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'HistoricalFigure',
     required: true
   },
-  isActive: { // Dùng để ẩn/hiện sản phẩm
+  isActive: { 
     type: Boolean, 
     default: true 
   },
-  // Các trường để hiển thị đánh giá
   averageRating: {
     type: Number,
     default: 0

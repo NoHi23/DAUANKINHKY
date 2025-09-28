@@ -7,7 +7,7 @@ const AdminProductList = () => {
 
     useEffect(() => {
         const fetchProducts = async () => {
-            const response = await api.get('/products/all');
+            const response = await api.get('/products');
             setProducts(response.data);
         };
         fetchProducts();

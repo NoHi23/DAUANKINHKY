@@ -79,7 +79,7 @@ exports.getAllProductsAdmin = async (req, res) => {
         const products = await Product.find({}).populate('historicalFigure', 'name');
         res.status(200).json(products);
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({error: error });
     }
 };
 
