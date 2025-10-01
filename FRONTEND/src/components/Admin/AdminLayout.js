@@ -15,7 +15,6 @@ const AdminLayout = () => {
           <NavLink to="/admin/products">Quản lý Sản phẩm</NavLink>
           <NavLink to="/admin/figures">Quản lý Nhân vật</NavLink>
 
-          {/* Chỉ Admin mới thấy các mục này */}
           {user && user.role === 'admin' && (
             <>
               <NavLink to="/admin/users">Quản lý Người dùng</NavLink>

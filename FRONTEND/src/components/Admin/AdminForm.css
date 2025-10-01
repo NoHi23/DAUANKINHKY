@@ -1,18 +1,67 @@
-.admin-form {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* --- Biến màu và cài đặt chung --- */
+:root {
+    --primary-color: #3498db;
+    --primary-hover-color: #2980b9;
+    --danger-color: #e74c3c;
+    --danger-hover-color: #c0392b;
+    --light-gray-color: #ecf0f1;
+    --gray-color: #bdc3c7;
+    --dark-gray-color: #7f8c8d;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
+
+
+/* --- Container chính của form --- */
+.admin-form-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden; /* Đảm bảo bo góc hoạt động với header */
+}
+
+.form-header {
+    padding: 20px 30px;
+    background-color: var(--light-gray-color);
+    border-bottom: 1px solid var(--gray-color);
+}
+
+.form-header h2 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+.admin-form {
+    padding: 30px;
+}
+
+/* --- Layout lưới cho các trường input --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.grid-col-span-2 {
+    grid-column: span 2;
+}
+
+
+/* --- Kiểu dáng các trường trong form --- */
 .form-group {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .form-group label {
-    display: block;
     margin-bottom: 8px;
-    font-weight: bold;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
 }
 
 .form-group input[type="text"],
@@ -20,39 +69,186 @@
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px;
+    border: 1px solid var(--gray-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--text-color);
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
 .form-group textarea {
-    min-height: 120px;
+    min-height: 150px;
     resize: vertical;
 }
 
+/* --- Kiểu dáng cho Checkbox --- */
 .form-group-checkbox {
     display: flex;
     align-items: center;
     gap: 10px;
+    padding-top: 10px;
+}
+.form-group-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+.form-group-checkbox label {
+    font-weight: normal;
+    cursor: pointer;
+}
+
+/* --- Khu vực tải ảnh & xem trước --- */
+.file-input {
+    display: none; /* Ẩn input file mặc định */
+}
+
+.custom-file-upload {
+    display: block;
+    text-align: center;
+    padding: 20px;
+    border: 2px dashed var(--gray-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    background-color: #fafafa;
+    color: var(--dark-gray-color);
+    transition: border-color 0.3s, background-color 0.3s;
+    margin-top: 10px;
+}
+
+.custom-file-upload:hover {
+    border-color: var(--primary-color);
+    background-color: #f0f8ff;
+}
+
+.custom-file-upload i {
+    margin-right: 8px;
+}
+
+.image-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.image-preview-item {
+    position: relative;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    aspect-ratio: 1 / 1; /* Giữ ảnh luôn vuông */
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cắt ảnh vừa khung, không bị méo */
+    display: block;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.3s, background-color 0.3s;
+}
+
+.image-preview-item:hover .remove-image-btn {
+    opacity: 1;
+}
+
+.remove-image-btn:hover {
+    background-color: var(--danger-color);
+}
+
+/* --- Nút bấm (Actions) --- */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--light-gray-color);
+}
+
+.admin-submit-btn, .admin-cancel-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .admin-submit-btn {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2980b9;
+    background-color: var(--primary-color);
     color: white;
-    cursor: pointer;
-    font-size: 16px;
 }
 
-.compact-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+.admin-submit-btn:hover {
+    background-color: var(--primary-hover-color);
 }
-.compact-form h3 {
-    width: 100%;
+
+.admin-submit-btn:disabled {
+    background-color: var(--gray-color);
+    cursor: not-allowed;
+}
+
+.admin-cancel-btn {
+    background-color: #ffffff;
+    color: var(--dark-gray-color);
+    border: 1px solid var(--gray-color);
+}
+
+.admin-cancel-btn:hover {
+    background-color: var(--light-gray-color);
+}
+
+.admin-submit-btn:active, .admin-cancel-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* --- Responsive cho màn hình nhỏ --- */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Chuyển về 1 cột */
+    }
+
+    .grid-col-span-2 {
+        grid-column: span 1; /* Reset span */
+    }
+
+    .form-actions {
+        flex-direction: column-reverse; /* Nút chính ở trên */
+        gap: 10px;
+    }
+    .admin-submit-btn, .admin-cancel-btn {
+        width: 100%;
+    }
 }

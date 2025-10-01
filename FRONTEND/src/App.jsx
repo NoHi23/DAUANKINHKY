@@ -1,6 +1,6 @@
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
@@ -42,26 +42,27 @@ import ProtectedRoute from './components/Routing/ProtectedRoute';
 import PaymentResultPage from './components/Checkout/PaymentResultPage';
 import BackToTopButton from './components/Common/BackToTopButton'; // <<-- 1. IMPORT
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith('/admin');
   return (
     <div className="app-wrapper">
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-            <Navbar />
-            <div className="main-content">
+      <AuthProvider>
+        <CartProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
+          <Navbar />
+          <div className={`main-content ${isAdminPage ? 'full-width' : ''}`}>
             <Routes>
               <Route path='/' element={<HomePage />} />
               <Route path='/products' element={<ProductListPage />} />
@@ -102,13 +103,24 @@ function App() {
               </Route>
 
             </Routes>
-            </div>
-            <Footer />
-            <BackToTopButton />
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
+          </div>
+          <Footer />
+          <BackToTopButton />
+        </CartProvider>
+      </AuthProvider>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

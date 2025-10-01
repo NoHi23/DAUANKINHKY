@@ -48,8 +48,13 @@ body {
   padding-top: 7%;
 }
 
-.main-content {        
-  margin: 0 100px;     
+.main-content {
+  margin: 0 100px;
+  min-height: 80vh; 
+}
+
+.main-content.full-width {
+  margin: 0;
 }
 
 body::before {

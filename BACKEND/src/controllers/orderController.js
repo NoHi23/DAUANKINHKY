@@ -3,44 +3,41 @@ const Cart = require('../models/cart');
 const Product = require('../models/product');
 const querystring = require('qs');
 const crypto = require("crypto");
-const axios = require("axios"); 
+const axios = require("axios");
 
 // @desc    Tạo đơn hàng mới từ giỏ hàng
 // @route   POST /api/orders
 // @access  Private (User)
 exports.createOrder = async (req, res) => {
     const { shippingAddress, phone, paymentMethod } = req.body;
+
     try {
-        // 1. Lấy giỏ hàng của user
         const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: 'Giỏ hàng của bạn đang trống' });
         }
 
-        // 2. Tạo danh sách sản phẩm cho đơn hàng và tính tổng tiền
         let subTotal = 0;
-        const orderItems = cart.items.map(item => {
-            // **Quan trọng**: Kiểm tra lại số lượng tồn kho trước khi đặt hàng
+        const orderItems = [];
+        for (const item of cart.items) {
             if (item.product.stockQuantity < item.quantity) {
-                 throw new Error(`Sản phẩm "${item.product.name}" không đủ số lượng.`);
+                throw new Error(`Sản phẩm "${item.product.name}" không đủ số lượng.`);
             }
             subTotal += item.quantity * item.product.price;
-            return {
-                product: { // Sao chép thông tin sản phẩm, không tham chiếu trực tiếp
+            orderItems.push({
+                product: {
                     _id: item.product._id,
                     name: item.product.name,
                     image: item.product.images[0],
                 },
                 price: item.product.price,
                 quantity: item.quantity,
-            };
-        });
-        
-        // 3. (Tùy chọn) Tính phí ship, mã giảm giá...
-        const shippingFee = 30000; // ví dụ
+            });
+        }
+
+        const shippingFee = 30000;
         const totalAmount = subTotal + shippingFee;
 
-        // 4. Tạo đơn hàng mới
         const order = await Order.create({
             user: req.user.id,
             items: orderItems,
@@ -49,24 +46,50 @@ exports.createOrder = async (req, res) => {
             paymentMethod,
             subTotal,
             shippingFee,
-            totalAmount
+            totalAmount,
+            // Với VietQR, trạng thái ban đầu luôn là chưa thanh toán
+            status: 'pending',
+            paymentStatus: 'pending',
         });
 
-        // 5. Cập nhật lại số lượng tồn kho của sản phẩm (transaction)
+        // Cập nhật số lượng tồn kho
         for (const item of cart.items) {
             await Product.findByIdAndUpdate(item.product._id, {
                 $inc: { stockQuantity: -item.quantity }
             });
         }
-        
-        // 6. Xóa giỏ hàng sau khi đặt hàng thành công
+
         await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
 
-        res.status(201).json(order);
+        // --- TẠO DỮ LIỆU VIETQR ĐỂ TRẢ VỀ ---
+        let qrData = null;
+        if (paymentMethod === 'VIETQR') {
+            const bankId = process.env.VIETQR_BANK_ID;
+            const accountNo = process.env.VIETQR_ACCOUNT_NO;
+            const accountName = process.env.VIETQR_ACCOUNT_NAME;
+            // Nội dung chuyển khoản chính là ID của đơn hàng để dễ dàng tra cứu
+            const description = `Thanh toan don hang ${order._id}`;
+
+            const qrImageUrl = `https://api.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
+
+            qrData = {
+                qrImageUrl,
+                amount: totalAmount,
+                description: order._id.toString() // Gửi mã đơn hàng về để hiển thị cho người dùng
+            };
+        }
+
+        res.status(201).json({
+            message: "Đặt hàng thành công!",
+            order,
+            qrData // Trả về qrData nếu là thanh toán VietQR
+        });
+
     } catch (error) {
         res.status(500).json({ message: error.message || 'Lỗi server' });
     }
 };
+
 
 // @desc    Lấy các đơn hàng của người dùng đang đăng nhập
 // @route   GET /api/orders
@@ -89,7 +112,6 @@ exports.getOrderById = async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
         }
-        // Kiểm tra quyền: hoặc là chủ đơn hàng, hoặc là admin
         if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Bạn không có quyền xem đơn hàng này' });
         }
@@ -99,13 +121,19 @@ exports.getOrderById = async (req, res) => {
     }
 };
 
+
 // @desc    Cập nhật trạng thái đơn hàng
 // @route   PUT /api/orders/:id/status
 // @access  Admin, Moderator
 exports.updateOrderStatus = async (req, res) => {
     try {
-        const { status } = req.body;
-        const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        const { status, paymentStatus } = req.body;
+        const updateData = {};
+        if (status) updateData.status = status;
+        if (paymentStatus) updateData.paymentStatus = paymentStatus;
+
+        const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
         }
@@ -124,11 +152,11 @@ exports.createPaymentUrl = async (req, res) => {
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: 'Giỏ hàng trống' });
         }
-        
+
         let subTotal = cart.items.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
         // Ở đây có thể thêm logic tính phí ship, coupon...
-        const totalAmount = subTotal; 
-        
+        const totalAmount = subTotal;
+
         // 1. Tạo đơn hàng trong DB với trạng thái "pending"
         const newOrder = await Order.create({
             user: userId,
@@ -150,11 +178,11 @@ exports.createPaymentUrl = async (req, res) => {
 
         const date = new Date();
         const createDate = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
-        
+
         const orderId = newOrder._id.toString(); // Dùng ID của đơn hàng vừa tạo
         const amount = totalAmount;
         const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        
+
         let vnp_Params = {};
         vnp_Params['vnp_Version'] = '2.1.0';
         vnp_Params['vnp_Command'] = 'pay';
@@ -173,12 +201,12 @@ exports.createPaymentUrl = async (req, res) => {
             acc[key] = vnp_Params[key];
             return acc;
         }, {});
-        
+
         const signData = querystring.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac("sha512", secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
         vnp_Params['vnp_SecureHash'] = signed;
-        
+
         vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
         res.status(200).json({ paymentUrl: vnpUrl });
@@ -225,7 +253,7 @@ exports.vnpayReturn = async (req, res) => {
                     // Bạn có thể cập nhật trạng thái đơn hàng thành 'processing' ở đây
                     // order.status = 'processing';
                     await order.save();
-                    
+
                     // Chuyển hướng về trang thành công
                     res.redirect('http://localhost:3000/payment-success');
                 } else {
@@ -235,7 +263,7 @@ exports.vnpayReturn = async (req, res) => {
                 }
             } else {
                 // Trường hợp không tìm thấy đơn hàng
-                 res.redirect('http://localhost:3000/payment-fail?message=OrderNotFound');
+                res.redirect('http://localhost:3000/payment-fail?message=OrderNotFound');
             }
         } catch (error) {
             // Lỗi server
@@ -266,9 +294,9 @@ exports.createMomoUrl = async (req, res) => {
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: 'Giỏ hàng trống' });
         }
-        
+
         const totalAmount = cart.items.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
-        
+
         // 1. Tạo đơn hàng trong DB với trạng thái "pending"
         const newOrder = await Order.create({
             user: userId,
@@ -293,10 +321,10 @@ exports.createMomoUrl = async (req, res) => {
         const extraData = ""; // Có thể để trống hoặc truyền thêm dữ liệu
 
         const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
-        
+
         const signature = crypto.createHmac('sha256', secretKey)
-                                .update(rawSignature)
-                                .digest('hex');
+            .update(rawSignature)
+            .digest('hex');
 
         const requestBody = {
             partnerCode, accessKey, requestId, amount, orderId,
@@ -305,7 +333,7 @@ exports.createMomoUrl = async (req, res) => {
         };
 
         const response = await axios.post(process.env.MOMO_API_ENDPOINT, requestBody);
-        
+
         res.status(200).json({ paymentUrl: response.data.payUrl });
 
     } catch (error) {
@@ -320,15 +348,15 @@ exports.momoIpn = async (req, res) => {
     const { orderId, resultCode } = req.body;
     try {
         if (resultCode == 0) { // Giao dịch thành công
-             const order = await Order.findById(orderId);
-             if (order) {
-                 order.paymentStatus = 'paid';
-                 await order.save();
-             }
+            const order = await Order.findById(orderId);
+            if (order) {
+                order.paymentStatus = 'paid';
+                await order.save();
+            }
         }
         // Phải trả về status 204 cho MoMo biết đã nhận được thông tin
         res.status(204).send();
-    } catch(error){
+    } catch (error) {
         res.status(500).send();
     }
 };
