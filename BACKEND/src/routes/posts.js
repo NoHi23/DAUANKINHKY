@@ -21,4 +21,5 @@ router.route('/:postId/comments')
     .post(createComment)
     .get(getPostComments);
 
+    
 module.exports = router;

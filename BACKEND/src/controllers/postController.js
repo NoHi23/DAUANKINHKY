@@ -25,16 +25,17 @@ exports.createPost = async (req, res) => {
 // @access  Private (User)
 exports.getAllPosts = async (req, res) => {
     try {
-        // Gợi ý: Nên thêm phân trang (pagination)
         const posts = await Post.find()
-            .populate('author', 'name avatar') // Lấy thông tin người đăng
-            .sort({ createdAt: -1 }); // Sắp xếp mới nhất lên đầu
+            .populate('author', 'name avatar') // Giữ nguyên
+            // --- THÊM DÒNG NÀY ---
+            .populate('comments.author', 'name avatar') // Lấy cả thông tin người bình luận
+            .sort({ createdAt: -1 });
+
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server' });
     }
 };
-
 // @desc    Thích hoặc bỏ thích một bài viết
 // @route   PUT /api/posts/:id/like
 // @access  Private (User)
@@ -93,6 +94,60 @@ exports.getPostById = async (req, res) => {
             return res.status(404).json({ message: 'Không tìm thấy bài viết' });
         }
         res.status(200).json(post);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server' });
+    }
+};
+
+exports.createComment = async (req, res) => {
+    try {
+        const { content } = req.body;
+        const postId = req.params.postId;
+        const authorId = req.user.id; // Lấy từ token qua middleware verifyToken
+
+        if (!content) {
+            return res.status(400).json({ message: 'Nội dung bình luận không được để trống' });
+        }
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Không tìm thấy bài viết' });
+        }
+
+        const newComment = {
+            content,
+            author: authorId
+        };
+
+        post.comments.push(newComment);
+        await post.save();
+
+        // Populate thông tin author để trả về client hiển thị avatar, tên
+        await post.populate('comments.author', 'name avatar');
+
+        // Trả về đúng định dạng mà frontend đang mong đợi
+        res.status(201).json({ comments: post.comments });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server' });
+    }
+};
+
+
+// @desc    Lấy tất cả bình luận của một bài viết
+// @route   GET /api/posts/:postId/comments
+// @access  Private (User)
+exports.getPostComments = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId)
+            .populate('comments.author', 'name avatar');
+
+        if (!post) {
+            return res.status(404).json({ message: 'Không tìm thấy bài viết' });
+        }
+
+        res.status(200).json(post.comments);
+
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server' });
     }

@@ -4,7 +4,8 @@ import api from '../../services/api';
 import ProductCard from '../Products/ProductCard';
 import './HomePage.css';
 import { CartContext } from '../../context/AuthContext'; // Import CartContext
-import { notifySuccess } from '../../services/notificationService';
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -40,7 +41,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured Products Section */}
       <section className="featured-products-section">
         <h2 className="section-title">Sản phẩm nổi bật</h2>
         <div className="product-grid">
@@ -50,12 +50,12 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Concept Section */}
       <section className="concept-section">
         <div className="concept-content">
           <h2>Hơn cả một sản phẩm</h2>
           <p>Chúng tôi không chỉ bán những vật phẩm, chúng tôi mang đến những câu chuyện. Mỗi "Blink Box" được chế tác tỉ mỉ, đi kèm với podcast và nội dung độc quyền, giúp bạn thực sự sống lại những khoảnh khắc vàng son của lịch sử.</p>
-          <Link to="/figures" className="concept-button">Tìm hiểu các nhân vật</Link>
+            
+          <Link to="/figures" className="concept-button">Tìm hiểu các nhân vật <i className="fas fa-arrow-right"></i></Link>
         </div>
       </section>
     </div>

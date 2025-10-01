@@ -10,6 +10,16 @@ const CartPage = () => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
 
+    const handleQuantityDecrease = (productId, currentQuantity) => {
+        if (currentQuantity > 1) {
+            updateItemQuantity(productId, currentQuantity - 1);
+        } else {
+            removeItemFromCart(productId);
+        }
+    };
+    const handleQuantityIncrease = (productId, currentQuantity) => {
+        updateItemQuantity(productId, currentQuantity + 1);
+    };
     if (!cart || !cart.items || cart.items.length === 0) {
         return (
             <div className="cart-container empty-cart">
@@ -18,7 +28,7 @@ const CartPage = () => {
             </div>
         );
     }
-    
+
     const subTotal = cart.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
     return (
@@ -35,9 +45,11 @@ const CartPage = () => {
                                 <button onClick={() => removeItemFromCart(item.product._id)} className="remove-btn">Xóa</button>
                             </div>
                             <div className="item-quantity">
-                                <button onClick={() => updateItemQuantity(item.product._id, item.quantity - 1)}>-</button>
+                                {/* SỬA Ở ĐÂY */}
+                                <button onClick={() => handleQuantityDecrease(item.product._id, item.quantity)}>-</button>
                                 <input type="text" value={item.quantity} readOnly />
-                                <button onClick={() => updateItemQuantity(item.product._id, item.quantity + 1)}>+</button>
+                                {/* VÀ Ở ĐÂY */}
+                                <button onClick={() => handleQuantityIncrease(item.product._id, item.quantity)}>+</button>
                             </div>
                             <div className="item-subtotal">
                                 {formatPrice(item.product.price * item.quantity)}

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../services/api';
 import { AuthContext } from './AuthContext';
+import { notifyInfo, notifyError } from '../services/notificationService';
 
 export const CartContext = createContext(null);
 
@@ -15,33 +16,38 @@ export const CartProvider = ({ children }) => {
         setCart(response.data);
       } catch (error) {
         console.error("Failed to fetch cart:", error);
-        setCart({ items: [] }); // Khởi tạo giỏ hàng rỗng nếu có lỗi
+        setCart({ items: [] });
       }
     } else {
-      setCart(null); // Xóa giỏ hàng khi người dùng logout
+      setCart(null);
     }
   };
 
-  // Lấy giỏ hàng khi người dùng thay đổi (đăng nhập/đăng xuất)
   useEffect(() => {
     fetchCart();
   }, [user]);
 
   const addItemToCart = async (productId, quantity) => {
     if (!user) {
-      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
-      return;
+      notifyInfo("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+      return false;
     }
     try {
       const response = await api.post('/cart/items', { productId, quantity });
-      setCart(response.data); // Cập nhật state giỏ hàng với dữ liệu mới từ server
+      setCart(response.data);
+      return true;
     } catch (error) {
       console.error("Failed to add item to cart:", error);
-      alert("Thêm sản phẩm thất bại. Vui lòng thử lại.");
+      notifyError("Thêm sản phẩm thất bại. Vui lòng thử lại.");
+      return false;
     }
   };
   const updateItemQuantity = async (productId, quantity) => {
     try {
+      if (quantity <= 0) {
+        await removeItemFromCart(productId);
+        return;
+      }
       const response = await api.put(`/cart/items/${productId}`, { quantity });
       setCart(response.data);
     } catch (error) {
@@ -59,7 +65,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addItemToCart, fetchCart }}>
+    <CartContext.Provider value={{ cart, addItemToCart, fetchCart, updateItemQuantity, removeItemFromCart }}>
       {children}
     </CartContext.Provider>
   );

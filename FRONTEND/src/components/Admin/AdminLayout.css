@@ -1,6 +1,5 @@
 .admin-layout {
     display: flex;
-    min-height: 100vh;
 }
 .admin-sidebar {
     width: 250px;
@@ -28,7 +27,5 @@
     background-color: #34495e;
 }
 .admin-main-content {
-    flex-grow: 1;
-    padding: 20px;
-    background-color: #f4f4f4;
+    flex-grow: 1; 
 }

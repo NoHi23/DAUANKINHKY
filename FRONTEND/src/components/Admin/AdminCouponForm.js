@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './AdminForm.css';
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
 
 const AdminCouponForm = () => {
     const navigate = useNavigate();
@@ -20,10 +22,10 @@ const AdminCouponForm = () => {
         e.preventDefault();
         try {
             await api.post('/coupons', coupon);
-            alert('Tạo mã giảm giá thành công!');
+            notifySuccess('Tạo mã giảm giá thành công!');
             navigate('/admin/coupons');
         } catch (error) {
-            alert('Tạo mã thất bại. Mã có thể đã tồn tại.');
+            notifyError('Tạo mã thất bại. Mã có thể đã tồn tại.');
         }
     };
 

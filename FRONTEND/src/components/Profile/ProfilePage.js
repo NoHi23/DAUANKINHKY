@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import './ProfilePage.css';
-
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
 const ProfilePage = () => {
     const { user, updateProfile } = useContext(AuthContext);
     const [formData, setFormData] = useState({
@@ -29,14 +30,14 @@ const ProfilePage = () => {
         e.preventDefault();
         try {
             await updateProfile(formData);
-            setMessage('Cập nhật thông tin thành công!');
+            notifySuccess('Cập nhật thông tin thành công!');
         } catch (error) {
-            setMessage('Cập nhật thất bại. Vui lòng thử lại.');
+            notifyError('Cập nhật thất bại. Vui lòng thử lại.');
         }
     };
 
     if (!user) {
-        return <div>Vui lòng đăng nhập để xem trang này.</div>;
+        notifyInfo('Vui lòng đăng nhập để xem trang này.');
     }
 
     return (

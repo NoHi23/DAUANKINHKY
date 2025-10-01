@@ -41,6 +41,7 @@ import AdminFigureForm from './components/Admin/AdminFigureForm';
 import ProtectedRoute from './components/Routing/ProtectedRoute';
 import PaymentResultPage from './components/Checkout/PaymentResultPage';
 import BackToTopButton from './components/Common/BackToTopButton'; // <<-- 1. IMPORT
+import ScrollToTop from './components/Common/ScrollToTop';
 
 function AppContent() {
   const location = useLocation();
@@ -115,6 +116,7 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
+    <ScrollToTop />
       <AuthProvider>
         <CartProvider>
           <AppContent />
