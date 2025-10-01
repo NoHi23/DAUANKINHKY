@@ -4,6 +4,8 @@ import api from '../../services/api';
 import './AdminForm.css';
 import axios from 'axios';
 import FullScreenLoader from '../Common/FullScreenLoader';
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
 
 const AdminProductForm = () => {
     const { id } = useParams();
@@ -68,7 +70,7 @@ const AdminProductForm = () => {
             }));
         } catch (error) {
             console.error("Lỗi khi tải ảnh lên Cloudinary:", error);
-            alert('Tải một hoặc nhiều ảnh thất bại. Vui lòng thử lại.');
+            notifyError('Tải một hoặc nhiều ảnh thất bại. Vui lòng thử lại.');
         } finally {
             setIsUploading(false);
         }
@@ -114,15 +116,15 @@ const AdminProductForm = () => {
         try {
             if (isEditing) {
                 await api.put(`/products/${id}`, product);
-                alert('Cập nhật sản phẩm thành công!');
+                notifySuccess('Cập nhật sản phẩm thành công!');
             } else {
                 await api.post('/products', product);
-                alert('Thêm sản phẩm thành công!');
+                notifySuccess('Thêm sản phẩm thành công!');
             }
             navigate('/admin/products');
         } catch (error) {
             console.error("Lỗi khi lưu sản phẩm:", error);
-            alert('Đã có lỗi xảy ra.');
+            notifyInfo('Đã có lỗi xảy ra.');
         }
     };
 

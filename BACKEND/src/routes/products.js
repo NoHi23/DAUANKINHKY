@@ -6,13 +6,13 @@ const reviewRouter = require('./reviews'); // Import review router
 
 // Chuyển hướng các route /:productId/reviews sang reviewRouter
 router.use('/:productId/reviews', reviewRouter);
+router.get('/', getAllProducts);
+router.get('/all', verifyToken, authorize('admin', 'moderator'), getAllProductsAdmin);
+router.get('/figure/:figureId', getProductsByFigure);
+router.get('/:id', getProductById);
 
 router.post('/', verifyToken, authorize('admin', 'moderator'), createProduct);
 router.put('/:id', verifyToken, authorize('admin', 'moderator'), updateProduct);
 router.delete('/:id', verifyToken, authorize('admin'), deleteProduct);
-router.get('/', getAllProducts);
-router.get('/:id', getProductById);
-router.get('/all', verifyToken, authorize('admin'), getAllProductsAdmin);
-router.get('/figure/:figureId', getProductsByFigure);
 
 module.exports = router;

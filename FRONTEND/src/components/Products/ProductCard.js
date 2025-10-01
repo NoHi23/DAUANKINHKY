@@ -9,14 +9,17 @@ const ProductCard = ({ product }) => {
 
     const { addItemToCart } = useContext(CartContext);
 
-    const handleAddToCart = (e) => {
-        e.preventDefault(); // Ngăn không cho Link hoạt động khi nhấn nút
-        e.stopPropagation(); // Ngăn các sự kiện khác
-        addItemToCart(product._id, 1);
-        notifySuccess(`Đã thêm "${product.name}" vào giỏ hàng!`);
+    const handleAddToCart = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const isSuccess = await addItemToCart(product._id, 1);
+
+        if (isSuccess) {
+            notifySuccess(`Đã thêm "${product.name}" vào giỏ hàng!`);
+        }
     };
 
-    // Định dạng giá tiền Việt Nam
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };

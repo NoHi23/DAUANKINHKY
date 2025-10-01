@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import './OrderHistoryPage.css';
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
+import FullScreenLoader from '../Common/FullScreenLoader';
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]);
@@ -24,7 +27,7 @@ const OrderHistoryPage = () => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
 
-    if (loading) return <div>Đang tải...</div>;
+    if (loading) return <FullScreenLoader/>;
 
     return (
         <div className="order-history-container">

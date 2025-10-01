@@ -56,9 +56,9 @@
 }
 
 .add-to-cart-hover-btn:hover {
-    background-color: #e67e22;
+    background-color: var(--text-color);
     color: white;
-    border-color: #e67e22;
+    border-color: var(--text-color);
 }
 
 .product-info {

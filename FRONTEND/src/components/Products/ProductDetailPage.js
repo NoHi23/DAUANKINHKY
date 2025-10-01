@@ -4,6 +4,8 @@ import api from '../../services/api';
 import './ProductDetailPage.css';
 import { useContext } from 'react'; // Đảm bảo đã import useContext
 import { CartContext } from '../../context/CartContext';
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
 
 const ProductDetailPage = () => {
   const [product, setProduct] = useState(null);
@@ -16,7 +18,7 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = async () => {
     await addItemToCart(id, quantity);
-    setAddedMessage('Đã thêm sản phẩm vào giỏ hàng!');
+    notifySuccess('Đã thêm sản phẩm vào giỏ hàng!');
     setTimeout(() => setAddedMessage(''), 3000); // Ẩn thông báo sau 3 giây
   };
 
@@ -27,7 +29,7 @@ const ProductDetailPage = () => {
         const response = await api.get(`/products/${id}`);
         setProduct(response.data);
       } catch (err) {
-        setError('Không tìm thấy sản phẩm.');
+        notifyError('Không tìm thấy sản phẩm.');
       } finally {
         setLoading(false);
       }
@@ -66,7 +68,6 @@ const ProductDetailPage = () => {
           <button className="add-to-cart-btn" onClick={handleAddToCart}>
             Thêm vào giỏ hàng
           </button>
-          {addedMessage && <p className="added-success-message">{addedMessage}</p>}
         </div>
       </div>
 

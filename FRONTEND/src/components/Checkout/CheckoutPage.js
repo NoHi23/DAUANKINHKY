@@ -4,7 +4,8 @@ import { CartContext } from '../../context/CartContext';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../services/api';
 import './CheckoutPage.css';
-import { notifySuccess, notifyError } from '../../services/notificationService';
+import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import { showConfirmDialog } from '../../services/confirmationService';
 
 
 const QRCodeModal = ({ qrData, onClose }) => {
@@ -12,7 +13,7 @@ const QRCodeModal = ({ qrData, onClose }) => {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(qrData.description);
-        alert('Đã sao chép mã đơn hàng!');
+        notifySuccess('Đã sao chép mã đơn hàng!');
     };
 
     return (
