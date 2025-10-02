@@ -1,11 +1,12 @@
+// src/pages/Admin/Products/AdminProductForm.js
+
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
-import './AdminForm.css';
 import axios from 'axios';
-import FullScreenLoader from '../Common/FullScreenLoader';
-import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
-import { showConfirmDialog } from '../../services/confirmationService';
+import './AdminCommon.css'; // Dùng lại CSS chung
+import FullScreenLoader from '../../components/Common/FullScreenLoader';
+import { notifySuccess, notifyError } from '../../services/notificationService';
 
 const AdminProductForm = () => {
     const { id } = useParams();
@@ -13,106 +14,81 @@ const AdminProductForm = () => {
     const isEditing = Boolean(id);
 
     const [product, setProduct] = useState({
-        name: '',
-        sku: '',
-        description: '',
-        price: 0,
-        stockQuantity: 0,
-        images: [],
-        historicalFigure: '',
-        isActive: true,
+        name: '', sku: '', description: '', price: 0, stockQuantity: 0,
+        images: [], historicalFigure: '', isActive: true,
     });
     const [historicalFigures, setHistoricalFigures] = useState([]);
-    const [isUploading, setIsUploading] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false); // Gộp loading và uploading
     const [isDragging, setIsDragging] = useState(false);
 
     useEffect(() => {
-        const fetchFigures = async () => {
-            const response = await api.get('/figures');
-            setHistoricalFigures(response.data);
+        const fetchData = async () => {
+            setIsProcessing(true);
+            try {
+                const figuresPromise = api.get('/figures');
+                if (isEditing) {
+                    const productPromise = api.get(`/products/${id}`);
+                    const [figuresRes, productRes] = await Promise.all([figuresPromise, productPromise]);
+                    setHistoricalFigures(figuresRes.data);
+                    setProduct({ ...productRes.data, images: productRes.data.images || [] });
+                } else {
+                    const figuresRes = await api.get('/figures');
+                    setHistoricalFigures(figuresRes.data);
+                }
+            } catch (error) {
+                notifyError("Lỗi khi tải dữ liệu.");
+            } finally {
+                setIsProcessing(false);
+            }
         };
-        fetchFigures();
-
-        if (isEditing) {
-            const fetchProduct = async () => {
-                const response = await api.get(`/products/${id}`);
-                setProduct({ ...response.data, images: response.data.images || [] });
-            };
-            fetchProduct();
-        }
+        fetchData();
     }, [id, isEditing]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setProduct(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
+        setProduct(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
     const handleImageUpload = async (files) => {
         if (!files || files.length === 0) return;
-
-        setIsUploading(true);
+        setIsProcessing(true);
         const uploadPromises = Array.from(files).map(file => {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', 'dakk_unsigned_preset');
             return axios.post('https://api.cloudinary.com/v1_1/dpnycqrxe/image/upload', formData);
         });
-
         try {
             const responses = await Promise.all(uploadPromises);
             const uploadedImageUrls = responses.map(res => res.data.secure_url);
-            setProduct(prev => ({
-                ...prev,
-                images: [...prev.images, ...uploadedImageUrls],
-            }));
+            setProduct(prev => ({ ...prev, images: [...prev.images, ...uploadedImageUrls] }));
+            notifySuccess(`Đã tải lên thành công ${uploadedImageUrls.length} ảnh!`);
         } catch (error) {
-            console.error("Lỗi khi tải ảnh lên Cloudinary:", error);
-            notifyError('Tải một hoặc nhiều ảnh thất bại. Vui lòng thử lại.');
+            notifyError('Tải một hoặc nhiều ảnh thất bại.');
         } finally {
-            setIsUploading(false);
+            setIsProcessing(false);
         }
     };
-
-    const handleDragEnter = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(true);
-    };
-    const handleDragLeave = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-
-        const files = e.dataTransfer.files;
-        if (files && files.length > 0) {
-            handleImageUpload(files);
-            e.dataTransfer.clearData();
-        }
-    };
+    
     const removeImage = (indexToRemove) => {
         setProduct(prev => ({
-            ...prev,
-            images: prev.images.filter((_, index) => index !== indexToRemove)
+            ...prev, images: prev.images.filter((_, index) => index !== indexToRemove)
         }));
     };
-
-
+    
+    // --- Drag & Drop Handlers ---
+    const handleDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+    const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+    const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
+    const handleDrop = (e) => {
+        e.preventDefault(); e.stopPropagation(); setIsDragging(false);
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) handleImageUpload(files);
+    };
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsProcessing(true);
         try {
             if (isEditing) {
                 await api.put(`/products/${id}`, product);
@@ -123,105 +99,107 @@ const AdminProductForm = () => {
             }
             navigate('/admin/products');
         } catch (error) {
-            console.error("Lỗi khi lưu sản phẩm:", error);
-            notifyInfo('Đã có lỗi xảy ra.');
+            notifyError('Đã có lỗi xảy ra khi lưu sản phẩm.');
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     return (
-        <div className="admin-form-container">
-            <FullScreenLoader loading={isUploading} />
-            <div className="form-header">
-                <h2>{isEditing ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h2>
-            </div>
-            <form onSubmit={handleSubmit} className="admin-form">
-                <div className="form-grid">
-                    <div className="form-group grid-col-span-2">
-                        <label htmlFor="name">Tên sản phẩm</label>
-                        <input id="name" type="text" name="name" value={product.name} onChange={handleChange} required />
-                    </div>
+        <>
+            <FullScreenLoader loading={isProcessing} />
+            <div className="content-card">
+                <div className="content-header">
+                    <h2>{isEditing ? `Chỉnh sửa: ${product.name}` : 'Thêm sản phẩm mới'}</h2>
+                    <Link to="/admin/products" className="back-btn">
+                        <i className="fa-solid fa-arrow-left"></i> Quay lại
+                    </Link>
+                </div>
 
-                    <div className="form-group">
-                        <label htmlFor="price">Giá</label>
-                        <input id="price" type="number" name="price" value={product.price} onChange={handleChange} required min="0" />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="stockQuantity">Số lượng kho</label>
-                        <input id="stockQuantity" type="number" name="stockQuantity" value={product.stockQuantity} onChange={handleChange} required min="0" />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="sku">SKU</label>
-                        <input id="sku" type="text" name="sku" value={product.sku} onChange={handleChange} required />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="historicalFigure">Nhân vật lịch sử</label>
-                        <select id="historicalFigure" name="historicalFigure" value={product.historicalFigure} onChange={handleChange} required>
-                            <option value="">-- Chọn nhân vật --</option>
-                            {historicalFigures.map(figure => (
-                                <option key={figure._id} value={figure._id}>{figure.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="form-group grid-col-span-2">
-                        <label htmlFor="description">Mô tả</label>
-                        <textarea id="description" name="description" value={product.description} onChange={handleChange}></textarea>
-                    </div>
-
-                    <div className="form-group grid-col-span-2">
-                        <label>Hình ảnh</label>
-                        <div className="image-previews">
-                            {product.images.map((img, index) => (
-                                <div key={index} className="image-preview-item">
-                                    <img src={img} alt={`Preview ${index + 1}`} />
-                                    <button type="button" className="remove-image-btn" onClick={() => removeImage(index)}>
-                                        &times;
-                                    </button>
+                <div className="content-body">
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-columns-container">
+                            {/* Cột chính */}
+                            <div className="form-column-main">
+                                <div className="form-group">
+                                    <label>Tên sản phẩm</label>
+                                    <input type="text" name="name" value={product.name} onChange={handleChange} required />
                                 </div>
-                            ))}
+                                <div className="form-group">
+                                    <label>Mô tả</label>
+                                    <textarea name="description" value={product.description} onChange={handleChange} rows="8"></textarea>
+                                </div>
+                            </div>
+                            {/* Cột phụ */}
+                            <div className="form-column-aside">
+                                <div className="form-group">
+                                    <label>Nhân vật lịch sử</label>
+                                    <select name="historicalFigure" value={product.historicalFigure} onChange={handleChange} required>
+                                        <option value="">-- Chọn nhân vật --</option>
+                                        {historicalFigures.map(f => <option key={f._id} value={f._id}>{f.name}</option>)}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>SKU (Mã sản phẩm)</label>
+                                    <input type="text" name="sku" value={product.sku} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Giá (VND)</label>
+                                    <input type="number" name="price" value={product.price} onChange={handleChange} required min="0" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Số lượng kho</label>
+                                    <input type="number" name="stockQuantity" value={product.stockQuantity} onChange={handleChange} required min="0" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Trạng thái</label>
+                                    <div className="toggle-switch-wrapper">
+                                        <label className="toggle-switch">
+                                            <input type="checkbox" name="isActive" checked={product.isActive} onChange={handleChange} />
+                                            <span className="slider"></span>
+                                        </label>
+                                        <span>{product.isActive ? 'Đang bán' : 'Tạm ẩn'}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <label
-                            htmlFor="file-upload"
-                            className={`custom-file-upload ${isDragging ? 'dragging' : ''}`}
-                            onDragEnter={handleDragEnter}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                        >
-                            <i className="fa fa-cloud-upload"></i> Chọn hoặc kéo thả ảnh
-                        </label>
-                        <input
-                            id="file-upload"
-                            className="file-input"
-                            type="file"
-                            multiple
-                            onChange={(e) => handleImageUpload(e.target.files)}
-                            accept="image/*"
-                            disabled={isUploading}
-                        />
-                    </div>
 
-                    <div className="form-group-checkbox grid-col-span-2">
-                        <input type="checkbox" id="isActive" name="isActive" checked={product.isActive} onChange={handleChange} />
-                        <label htmlFor="isActive">
-                            Đang hoạt động (Hiển thị sản phẩm trên trang web)
-                        </label>
-                    </div>
-                </div>
+                        {/* Khu vực Upload ảnh */}
+                        <div className="image-upload-section">
+                            <label>Hình ảnh sản phẩm</label>
+                            <div 
+                                className={`image-dropzone ${isDragging ? 'dragging' : ''}`}
+                                onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
+                                onDragOver={handleDragOver} onDrop={handleDrop}
+                            >
+                                <input id="file-upload" type="file" multiple accept="image/*" onChange={(e) => handleImageUpload(e.target.files)} style={{display: 'none'}} />
+                                <label htmlFor="file-upload" className="dropzone-inner">
+                                    <i className="fa-solid fa-cloud-arrow-up"></i>
+                                    <span>Kéo và thả ảnh vào đây, hoặc nhấn để chọn ảnh</span>
+                                    <small>Hỗ trợ nhiều ảnh cùng lúc</small>
+                                </label>
+                            </div>
+                            <div className="image-previews-grid">
+                                {product.images.map((img, index) => (
+                                    <div key={index} className="image-preview-item">
+                                        <img src={img} alt={`Preview ${index + 1}`} />
+                                        <button type="button" className="remove-image-btn" onClick={() => removeImage(index)}>&times;</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
 
-                <div className="form-actions">
-                    <button type="button" className="admin-cancel-btn" onClick={() => navigate('/admin/products')}>
-                        Hủy
-                    </button>
-                    <button type="submit" className="admin-submit-btn" disabled={isUploading}>
-                        {isUploading ? 'Đang xử lý...' : (isEditing ? 'Lưu thay đổi' : 'Tạo sản phẩm')}
-                    </button>
+                        {/* Nút bấm */}
+                        <div className="form-actions">
+                            <button type="submit" className="add-new-btn" disabled={isProcessing}>
+                                <i className="fa-solid fa-save"></i>
+                                {isProcessing ? 'Đang xử lý...' : (isEditing ? 'Lưu thay đổi' : 'Tạo sản phẩm')}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
+            </div>
+        </>
     );
 };
 
