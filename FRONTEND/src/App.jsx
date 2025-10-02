@@ -42,7 +42,7 @@ import ProtectedRoute from './components/Routing/ProtectedRoute';
 import PaymentResultPage from './components/Checkout/PaymentResultPage';
 import BackToTopButton from './components/Common/BackToTopButton'; // <<-- 1. IMPORT
 import ScrollToTop from './components/Common/ScrollToTop';
-
+import ContactPage from './components/Contact/ContactPage';
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
@@ -71,6 +71,7 @@ function AppContent() {
               <Route path='/figures' element={<FigureListPage />} />
               <Route path='/figures/:id' element={<FigureDetailPage />} />
               <Route path='/blog' element={<BlogPage />} />
+              <Route path='/contact' element={<ContactPage/>}/>
               <Route path='/posts/:id' element={<PostDetailPage />} />
 
               <Route path='/login' element={<LoginPage />} />
