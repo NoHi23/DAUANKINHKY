@@ -105,3 +105,44 @@
     text-align: center;
     margin-bottom: 30px;
 }
+
+.podcast-section {
+    margin: 3rem 0;
+    padding-top: 2.5rem;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.podcast-section h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+.video-player-wrapper {
+    max-width: 800px; /* Giới hạn chiều rộng tối đa của video */
+    margin: 0 auto; /* Căn giữa video */
+    border-radius: 12px;
+    overflow: hidden; /* Đảm bảo video cũng được bo góc */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background-color: #000; /* Nền đen cho video */
+}
+
+.video-player-wrapper video {
+    display: block; /* Loại bỏ khoảng trống thừa bên dưới video */
+    width: 100%;
+    height: auto;
+}
+
+.podcast-title {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #666;
+}
+
+/* Thêm một chút responsive cho thiết bị nhỏ */
+@media (max-width: 768px) {
+    .podcast-section h2 {
+        font-size: 1.5rem;
+    }
+}
