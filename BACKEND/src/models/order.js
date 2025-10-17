@@ -20,21 +20,21 @@ const orderSchema = new mongoose.Schema({
     required: true
   },
   subTotal: { // Tổng tiền hàng
-    type: Number, 
-    required: true 
+    type: Number,
+    required: true
   },
   shippingFee: { // Phí vận chuyển
-    type: Number, 
-    required: true, 
-    default: 0 
+    type: Number,
+    required: true,
+    default: 0
   },
   discountAmount: { // Số tiền được giảm
     type: Number,
     default: 0
   },
   totalAmount: { // Tổng tiền cuối cùng phải trả
-    type: Number, 
-    required: true 
+    type: Number,
+    required: true
   },
   paymentMethod: {
     type: String,
@@ -50,7 +50,14 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
+  },
+  billImage: { type: String },
+  qrData: {
+    qrImageUrl: String,
+    amount: Number,
+    description: String
   }
+
 }, {
   timestamps: true
 });

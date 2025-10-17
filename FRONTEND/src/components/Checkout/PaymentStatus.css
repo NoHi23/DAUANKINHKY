@@ -1,39 +1,164 @@
 .payment-status-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     text-align: center;
-    min-height: 60vh;
-    padding: 20px;
+    padding: 60px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
-.success-icon {
-    font-size: 80px;
-    color: #2ecc71;
+
+.success-icon,
+.fail-icon {
+    font-size: 60px;
     margin-bottom: 20px;
 }
-.payment-status-container h2 {
-    font-size: 2rem;
+
+.success-icon {
+    color: #4CAF50;
+}
+
+.fail-icon {
+    color: #f44336;
+}
+
+.status-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.status-button.secondary {
+    background-color: #ccc;
+    color: black;
+}
+
+.status-button:hover {
+    opacity: 0.9;
+}
+
+/* Upload section */
+.upload-section {
+    margin-top: 30px;
+}
+
+.upload-section input {
     margin-bottom: 10px;
 }
-.button-group {
-    margin-top: 30px;
+
+.upload-success {
+    color: green;
+    margin-top: 10px;
+}
+
+/* Responsive for small screens */
+@media (max-width: 600px) {
+    .payment-status-container {
+        padding: 40px 15px;
+    }
+
+    .success-icon,
+    .fail-icon {
+        font-size: 48px;
+    }
+
+    .status-button {
+        display: block;
+        width: 80%;
+        margin: 10px auto;
+        font-size: 16px;
+        padding: 12px 0;
+    }
+
+    .upload-section input {
+        width: 100%;
+    }
+}
+
+/* components/Checkout/PaymentStatus.css */
+.payment-success-page {
     display: flex;
-    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-height: 80vh;
 }
-.status-button {
-    padding: 12px 25px;
-    text-decoration: none;
-    border-radius: 5px;
-    color: white;
-    background-color: #3498db;
+
+.success-card {
+    background: #fff;
+    padding: 30px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
 }
-.status-button.secondary {
-    background-color: #bdc3c7;
+
+.title {
+    font-size: 1.8rem;
+    color: #28a745;
+    margin-bottom: 10px;
 }
-/* Thêm vào file src/components/Checkout/PaymentStatus.css */
-.fail-icon {
-    font-size: 80px;
-    color: #e74c3c; /* Màu đỏ */
+
+.subtitle {
+    font-size: 1rem;
+    color: #555;
     margin-bottom: 20px;
 }
+
+.upload-section input[type="file"] {
+    display: block;
+    margin: 0 auto 15px auto;
+}
+
+.preview-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.upload-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.upload-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.upload-btn:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .success-card {
+        padding: 20px 15px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+    }
+
+    .upload-btn {
+        width: 100%;
+    }
+}
+

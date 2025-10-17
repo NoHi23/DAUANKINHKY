@@ -1,11 +1,10 @@
-// src/pages/Blog/BlogPage.js
-
 import React, { useState, useEffect, useContext } from 'react';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import './BlogPage.css';
 import PostItem from './PostItem';
 import { notifySuccess, notifyError } from '../../services/notificationService';
+import { Editor } from '@tinymce/tinymce-react';
 
 const BlogPage = () => {
     const [posts, setPosts] = useState([]);
@@ -28,6 +27,10 @@ const BlogPage = () => {
         fetchPosts();
     }, []);
 
+    const handleContentChange = (newContent, editor) => {
+        setContent(newContent);
+    };
+
     const handleCreatePost = async (e) => {
         e.preventDefault();
         if (!content.trim()) {
@@ -35,17 +38,15 @@ const BlogPage = () => {
             return;
         }
         try {
-            // Dòng này gọi API để lưu bài viết mới vào database
             await api.post('/posts', { content });
             setContent('');
-            fetchPosts(); 
+            fetchPosts();
             notifySuccess("Đăng bài thành công!");
         } catch (error) {
             notifyError("Lỗi khi đăng bài.");
         }
     };
-    
-    // Hàm callback để xóa bài viết khỏi state mà không cần fetch lại
+
     const handlePostDeleted = (deletedPostId) => {
         setPosts(posts.filter(p => p._id !== deletedPostId));
     };
@@ -53,7 +54,6 @@ const BlogPage = () => {
     return (
         <div className="blog-page-container">
             <div className="blog-layout">
-                {/* --- CỘT TRÁI - SIDEBAR --- */}
                 <aside className="blog-sidebar">
                     {user ? (
                         <div className="profile-card card">
@@ -62,14 +62,13 @@ const BlogPage = () => {
                             <p>Chào mừng bạn đến với cộng đồng!</p>
                         </div>
                     ) : (
-                         <div className="profile-card card">
+                        <div className="profile-card card">
                             <h3>Khách</h3>
                             <p>Hãy đăng nhập để tham gia thảo luận và chia sẻ nhé!</p>
                         </div>
                     )}
                 </aside>
 
-                {/* --- CỘT PHẢI - MAIN FEED --- */}
                 <main className="blog-main-feed">
                     {user && (
                         <div className="create-post-card card">
@@ -78,11 +77,19 @@ const BlogPage = () => {
                                 <p>Chào {user.name}, bạn đang nghĩ gì?</p>
                             </div>
                             <form onSubmit={handleCreatePost}>
-                                <textarea
+                                <Editor
+                                    apiKey="your-api-key"
                                     value={content}
-                                    onChange={(e) => setContent(e.target.value)}
-                                    placeholder="Chia sẻ câu chuyện hoặc đặt câu hỏi..."
-                                ></textarea>
+                                    init={{
+                                        height: 200,
+                                        menubar: false,
+                                        plugins: 'autolink lists link emoticons',
+                                        toolbar: 'bold italic underline | bullist numlist | link emoticons',
+                                        placeholder: 'Chia sẻ câu chuyện hoặc đặt câu hỏi...',
+                                        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size:1rem }'
+                                    }}
+                                    onEditorChange={handleContentChange}
+                                />
                                 <div className="create-post-actions">
                                     <button type="submit" className="post-submit-btn">Đăng bài</button>
                                 </div>

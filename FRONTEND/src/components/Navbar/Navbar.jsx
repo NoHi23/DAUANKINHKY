@@ -1,23 +1,25 @@
 import React, { useState, useContext } from 'react';
 import './Navbar.css';
-import { Link, NavLink, useNavigate } from 'react-router-dom'; // Thêm useNavigate
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { CartContext } from '../../context/CartContext';
 
 const Navbar = () => {
-  const [activeLink, setActiveLink] = useState('Trang chủ');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false); // <<-- 1. STATE MỚI
-  const { user, logout } = useContext(AuthContext); // Lấy user và hàm logout từ context
-  const { cart } = useContext(CartContext); // Lấy cart từ context
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { user, logout } = useContext(AuthContext);
+  const { cart } = useContext(CartContext);
   const cartItemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const navigate = useNavigate();
   const isUserAdmin = user && (user.role === 'admin' || user.role === 'moderator');
 
   const handleLogout = () => {
+    // Đóng tất cả menu trước khi logout
+    setMenuOpen(false);
+    setUserMenuOpen(false);
     logout();
-    navigate('/login'); // Chuyển về trang đăng nhập sau khi logout
+    navigate('/login');
   };
 
   const handleLinkClick = () => {
@@ -54,7 +56,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="logo">
-        <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+        <Link to="/" style={{ display: "flex", alignItems: "center" }} onClick={handleLinkClick}>
           <img src="/DAUANKINHKY.png" alt="Logo" />
           <img src="/TEXT_DAUANKINHKY1.png" alt="Text" />
         </Link>
@@ -69,8 +71,38 @@ const Navbar = () => {
         onClick={() => setMenuOpen(false)}
       ></div>
 
-      {/* Sửa lại cách render menu để dùng NavLink cho đẹp */}
       <ul className={`nav-links ${menuOpen ? 'show' : ''}`}>
+        {/* ===== PHẦN AUTH DÀNH CHO MOBILE ===== */}
+        <li className="nav-mobile-auth">
+          {user ? (
+            <>
+              <div className="user-greeting">Chào, {user.name}</div>
+
+              {user.role === 'user' && (
+                <>
+                  <Link to="/profile" onClick={handleLinkClick}>Tài khoản của tôi</Link>
+                  <Link to="/order-history" onClick={handleLinkClick}>Lịch sử mua hàng</Link>
+                </>
+              )}
+
+              {user.role === 'moderator' && (
+                <>
+                  <Link to="/profile" onClick={handleLinkClick}>Tài khoản của tôi</Link>
+                </>
+              )}
+
+              <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={handleLinkClick}>Đăng nhập</Link>
+              <Link to="/register" onClick={handleLinkClick}>Đăng ký</Link>
+            </>
+          )}
+        </li>
+        <li className="nav-separator"><hr /></li>
+
+        {/* ===== CÁC LINK MENU CHÍNH ===== */}
         {menuItems.map(item => (
           <li key={item.path}>
             <NavLink
@@ -108,29 +140,18 @@ const Navbar = () => {
             {user ? (
               <>
                 <div className="user-menu-greeting">Chào, {user.name}</div>
-
-
-                {user.role === 'admin' && (
-                  <>
-                    <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
-                  </>
-                )}
-
-                {user.role === 'moderator' && (
-                  <>
-                    <Link to="/profile" onClick={() => setUserMenuOpen(false)}>Tài khoản của tôi</Link>
-                    <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
-                  </>
-                )}
-
-                {user.role === 'user' && ( 
+                {user.role === 'user' && (
                   <>
                     <Link to="/profile" onClick={() => setUserMenuOpen(false)}>Tài khoản của tôi</Link>
                     <Link to="/order-history" onClick={() => setUserMenuOpen(false)}>Lịch sử mua hàng</Link>
-                    <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
                   </>
                 )}
-
+                {user.role === 'moderator' && (
+                  <>
+                    <Link to="/profile" onClick={() => setUserMenuOpen(false)}>Tài khoản của tôi</Link>
+                  </>
+                )}
+                <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
               </>
             ) : (
               <>

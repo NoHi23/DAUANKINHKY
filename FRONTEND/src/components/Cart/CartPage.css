@@ -1,14 +1,15 @@
-
 :root {
-    --primary-color: #007bff; 
+    --primary-color: #007bff;
     --primary-hover-color: #0056b3;
     --danger-color: #dc3545;
     --danger-hover-color: #c82333;
-    --text-muted-color: #6c757d; /* Màu chữ phụ */
-    --border-color: #dee2e6; /* Màu viền */
+    --text-muted-color: #6c757d;
+    --border-color: #dee2e6;
     --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     --border-radius: 8px;
     --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --card-background-color: #fff;
+    --background-color: #f8f9fa;
 }
 
 .cart-container {
@@ -54,7 +55,6 @@
     background-color: var(--primary-hover-color);
 }
 
-/* === BỐ CỤC CHÍNH (SẢN PHẨM & TÓM TẮT) === */
 .cart-content {
     display: flex;
     gap: 30px;
@@ -68,7 +68,6 @@
     gap: 20px;
 }
 
-/* === CARD TỪNG SẢN PHẨM === */
 .cart-item {
     display: flex;
     align-items: center;
@@ -91,6 +90,7 @@
     object-fit: cover;
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .item-details {
@@ -126,13 +126,12 @@
     text-decoration: underline;
 }
 
-/* === BỘ ĐIỀU CHỈNH SỐ LƯỢNG === */
 .item-quantity {
     display: flex;
     align-items: center;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    overflow: hidden; /* Giúp bo góc được áp dụng cho cả button bên trong */
+    overflow: hidden;
 }
 
 .item-quantity button {
@@ -159,7 +158,7 @@
     border-right: 1px solid var(--border-color);
     font-size: 1rem;
     font-weight: 600;
-    -moz-appearance: textfield; /* Tắt mũi tên tăng giảm của trình duyệt */
+    -moz-appearance: textfield;
 }
 
 .item-quantity input::-webkit-outer-spin-button,
@@ -168,17 +167,14 @@
     margin: 0;
 }
 
-
-/* === TỔNG TIỀN CỦA TỪNG SẢN PHẨM === */
 .item-subtotal {
     font-weight: 600;
     font-size: 1.1rem;
-    width: 150px;
+    min-width: 120px;
     text-align: right;
+    flex-shrink: 0;
 }
 
-
-/* === KHUNG TÓM TẮT ĐƠN HÀNG === */
 .cart-summary {
     flex: 1;
     background: var(--card-background-color);
@@ -186,7 +182,8 @@
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     position: sticky;
-    top: 20px; /* Dính lại khi cuộn trang */
+    top: 20px;
+    min-width: 280px;
 }
 
 .cart-summary h2 {
@@ -223,7 +220,7 @@
 
 .checkout-btn {
     display: block;
-    width: 90%;
+    width: 100%;
     padding: 15px;
     text-align: center;
     background: var(--primary-color);
@@ -232,9 +229,10 @@
     border-radius: var(--border-radius);
     font-size: 1.1rem;
     font-weight: 600;
-    margin-top: 20px;
+    margin: 20px auto 0;
     transition: background-color 0.3s ease, transform 0.2s ease;
     border: none;
+    box-sizing: border-box;
 }
 
 .checkout-btn:hover {
@@ -242,45 +240,95 @@
     transform: scale(1.02);
 }
 
-
-/* === RESPONSIVE CHO MÀN HÌNH NHỎ === */
 @media (max-width: 992px) {
     .cart-content {
         flex-direction: column;
     }
+
     .cart-summary {
         width: 100%;
-        position: static; /* Bỏ dính khi layout chuyển thành cột */
+        position: static;
         margin-top: 30px;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-item {
+        gap: 15px;
+    }
+
+    .cart-item img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .item-details h3 {
+        font-size: 1rem;
+    }
+
+    .item-details p {
+        font-size: 1rem;
+    }
+
+    .item-subtotal {
+        font-size: 1rem;
+        min-width: 100px;
     }
 }
 
 @media (max-width: 576px) {
+    .cart-container {
+        padding: 0 15px;
+    }
+
+    .cart-container h1 {
+        font-size: 2rem;
+    }
+
     .cart-item {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         text-align: center;
         position: relative;
+        padding: 15px;
     }
+
     .cart-item img {
         width: 100%;
-        height: auto;
+        height: 180px;
         margin-bottom: 15px;
     }
-    .item-details, .item-quantity, .item-subtotal {
-        width: 100%;
+
+    .item-details,
+    .item-quantity,
+    .item-subtotal {
+        width: auto;
         justify-content: center;
         text-align: center;
+        margin-bottom: 10px;
     }
+
+    .item-details {
+        margin-bottom: 15px;
+    }
+
     .item-subtotal {
-        margin-top: 15px;
+        margin-top: 10px;
         font-size: 1.2rem;
+        width: 100%;
     }
+
     .remove-btn {
         position: absolute;
-        top: 10px;
-        right: 15px;
+        top: 5px;
+        right: 5px;
         font-size: 1.2rem;
-        padding: 5px;
+        padding: 10px;
+        margin-top: 0;
+    }
+
+    .cart-summary {
+        padding: 20px;
     }
 }

@@ -1,0 +1,46 @@
+.vietqr-container {
+  max-width: 500px;
+  margin: 60px auto;
+  text-align: center;
+  padding: 20px;
+}
+
+.vietqr-container h2 {
+  margin-bottom: 20px;
+}
+
+.qr-code-image {
+  width: 250px;
+  height: 250px;
+  margin-bottom: 20px;
+}
+
+.qr-info {
+  margin-bottom: 20px;
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 5px;
+  word-break: break-word;
+}
+
+.confirm-btn {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.confirm-btn:hover {
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .qr-code-image {
+    width: 180px;
+    height: 180px;
+  }
+}

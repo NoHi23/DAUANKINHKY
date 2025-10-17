@@ -1,4 +1,5 @@
-.figure-list-container {
+.figure-list-container,
+.figure-detail-content {
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px;
@@ -8,9 +9,11 @@
     text-align: center;
     margin-bottom: 40px;
     font-size: 2.5rem;
+    color: var(--text-color);
 }
 
-.figure-grid {
+.figure-grid,
+.product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 30px;
@@ -24,16 +27,15 @@
     text-decoration: none;
     display: block;
     height: 400px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .figure-card::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%);
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 60%);
+    z-index: 1;
 }
 
 .figure-card img {
@@ -51,10 +53,20 @@
     position: absolute;
     bottom: 20px;
     left: 20px;
+    right: 20px;
     z-index: 2;
 }
 
-/* --- CSS cho trang chi tiết --- */
+.figure-card-info h3 {
+    margin-bottom: 5px;
+    font-size: 1.5rem;
+}
+
+.figure-card-info p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
 .figure-detail-container {
     margin: 0 auto;
 }
@@ -68,12 +80,14 @@
     align-items: center;
     color: white;
     text-align: center;
+    padding: 0 20px;
 }
 
 .figure-hero img {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     z-index: -2;
 }
@@ -81,54 +95,55 @@
 .figure-hero::after {
     content: '';
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: -1;
 }
 
 .figure-hero h1 {
     font-size: 4rem;
+    margin-bottom: 0.5rem;
+}
+
+.figure-hero .period {
+    font-size: 1.25rem;
+    font-style: italic;
 }
 
 .figure-detail-content {
     max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
     line-height: 1.8;
 }
 
-.related-products {
-    margin-top: 50px;
-}
-.related-products h2 {
-    text-align: center;
-    margin-bottom: 30px;
+.figure-detail-content .bio {
+    font-size: 1.1rem;
+    color: #555;
 }
 
 .podcast-section {
     margin: 3rem 0;
-    padding-top: 2.5rem;
-    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
     text-align: center;
 }
 
-.podcast-section h2 {
+.podcast-section h2,
+.related-products h2 {
     font-size: 2rem;
     margin-bottom: 2rem;
+    text-align: center;
 }
 
 .video-player-wrapper {
-    max-width: 800px; /* Giới hạn chiều rộng tối đa của video */
-    margin: 0 auto; /* Căn giữa video */
+    max-width: 800px;
+    margin: 0 auto;
     border-radius: 12px;
-    overflow: hidden; /* Đảm bảo video cũng được bo góc */
+    overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    background-color: #000; /* Nền đen cho video */
+    background-color: #000;
 }
 
 .video-player-wrapper video {
-    display: block; /* Loại bỏ khoảng trống thừa bên dưới video */
+    display: block;
     width: 100%;
     height: auto;
 }
@@ -140,9 +155,121 @@
     color: #666;
 }
 
-/* Thêm một chút responsive cho thiết bị nhỏ */
-@media (max-width: 768px) {
-    .podcast-section h2 {
-        font-size: 1.5rem;
+.related-products {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 992px) {
+    .figure-detail-content {
+        max-width: 720px;
     }
+}
+
+@media (max-width: 768px) {
+    .figure-list-container h1 {
+        font-size: 2.2rem;
+    }
+
+    .figure-grid,
+    .product-grid {
+        gap: 20px;
+    }
+
+    .figure-hero {
+        height: 50vh;
+    }
+
+    .figure-hero h1 {
+        font-size: 3rem;
+    }
+
+    .figure-hero .period {
+        font-size: 1.1rem;
+    }
+
+    .figure-detail-content {
+        padding: 0 15px;
+        margin-top: 30px;
+    }
+
+    .podcast-section h2,
+    .related-products h2 {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .figure-list-container {
+        margin-top: 20px;
+        padding: 0 15px;
+    }
+
+    .figure-list-container h1 {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+    }
+
+    .figure-grid,
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .figure-card {
+        height: 350px;
+    }
+
+    .figure-hero {
+        height: 45vh;
+    }
+
+    .figure-hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .figure-hero .period {
+        font-size: 1rem;
+    }
+
+    .figure-detail-content .bio {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .podcast-section h2,
+    .related-products h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .podcast-section,
+    .related-products {
+        margin-top: 40px;
+        padding-top: 20px;
+    }
+}
+
+.bio p {
+    margin-bottom: 1em;
+}
+
+.bio ul,
+.bio ol {
+    padding-left: 30px;
+    margin-bottom: 1em;
+}
+
+.bio a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.bio strong {
+    font-weight: bold;
+}
+
+.bio em {
+    font-style: italic;
 }

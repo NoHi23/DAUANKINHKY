@@ -1,8 +1,8 @@
 .login-page {
     display: flex;
     min-height: 100vh;
+    min-height: 100svh;
     font-family: 'Arial', sans-serif;
-    margin-bottom: 20px;
 }
 
 .login-image-panel {
@@ -20,10 +20,7 @@
 .login-image-panel::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(50, 40, 30, 0.5));
 }
 
@@ -44,7 +41,6 @@
     line-height: 1.6;
 }
 
-/* --- Form Panel (Right Side) --- */
 .login-form-panel {
     flex: 1;
     display: flex;
@@ -55,14 +51,13 @@
 
 .auth-form-container {
     width: 100%;
-    max-width: 420px;
+    max-width: 450px;
     background: white;
-    padding: 40px 30px;
+    padding: 40px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* --- Form Elements --- */
 .logo-container {
     text-align: center;
     margin-bottom: 20px;
@@ -100,7 +95,8 @@
 }
 
 .input-group input {
-    width: 85%;
+    width: 100%;
+    box-sizing: border-box;
     padding: 12px 15px 12px 45px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -110,20 +106,19 @@
 
 .input-group input:focus {
     outline: none;
-    border-color: #a5855b; /* Màu nhấn thương hiệu */
+    border-color: var(--text-color-2, #a5855b);
 }
 
 .form-options {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 20px;
-    margin-right: 10px;
+    font-size: 0.9rem;
 }
 
 .forgot-password {
-    color: #a5855b;
+    color: var(--text-color-2, #a5855b);
     text-decoration: none;
-    font-size: 0.9rem;
 }
 
 .btn-submit {
@@ -131,7 +126,7 @@
     padding: 14px;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(90deg, #b8956c, #a5855b);
+    background: var(--text-color, #a5855b);
     color: white;
     font-size: 1.1rem;
     font-weight: bold;
@@ -144,7 +139,6 @@
     box-shadow: 0 4px 15px rgba(165, 133, 91, 0.4);
 }
 
-/* --- Social Login --- */
 .social-login-divider {
     text-align: center;
     margin: 30px 0;
@@ -158,7 +152,7 @@
     content: '';
     position: absolute;
     top: 50%;
-    width: 40%;
+    width: 15%;
     height: 1px;
     background-color: #ddd;
 }
@@ -196,30 +190,24 @@
     background-color: #f9f9f9;
 }
 
-.btn-social.google i { color: #DB4437; }
-.btn-social.facebook i { color: #4267B2; }
+.btn-social.google i {
+    color: #DB4437;
+}
 
-/* --- Helper & Links --- */
+.btn-social.facebook i {
+    color: #4267B2;
+}
+
 .auth-switch {
     text-align: center;
     color: #555;
+    margin-top: 10px;
 }
 
 .auth-switch a {
-    color: #a5855b;
+    color: var(--text-color-2, #a5855b);
     text-decoration: none;
     font-weight: bold;
-}
-
-/* --- Responsive Design --- */
-@media (max-width: 992px) {
-    .login-image-panel {
-        display: none; /* Ẩn cột hình ảnh trên tablet và mobile */
-    }
-
-    .login-form-panel {
-        flex: 1;
-    }
 }
 
 .avatar-upload-group {
@@ -244,7 +232,7 @@
 }
 
 .avatar-preview-circle:hover {
-    border-color: #a5855b;
+    border-color: var(--text-color-2, #a5855b);
     background-color: #f1f1f1;
 }
 
@@ -269,6 +257,51 @@
     font-size: 0.9rem;
 }
 
-.login-form-panel .auth-form-container {
-    max-width: 450px; 
+@media (max-width: 992px) {
+    .login-image-panel {
+        display: none;
+    }
+
+    .login-form-panel {
+        flex-basis: 100%;
+        justify-content: center;
+    }
+
+    .auth-form-container {
+        padding: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        display: block;
+        min-height: auto;
+    }
+
+    .login-form-panel {
+        padding: 20px;
+    }
+
+    .auth-form-container {
+        padding: 20px;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .welcome-message h1 {
+        font-size: 2.2rem;
+    }
+
+    .auth-form-container h2 {
+        font-size: 1.5rem;
+    }
+
+    .avatar-preview-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .social-login-buttons {
+        flex-direction: column;
+    }
 }

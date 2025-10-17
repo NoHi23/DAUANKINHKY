@@ -1,26 +1,24 @@
-// src/components/Admin/AdminFigureForm.js
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import axios from 'axios';
-import './AdminCommon.css'; // Dùng lại CSS chung
-import FullScreenLoader from '../Common/FullScreenLoader'; // Giả sử đường dẫn này đúng
-import { notifySuccess, notifyError } from '../../services/notificationService'; // Giả sử đường dẫn này đúng
-import FileUpload from '../Common/FileUpload'; // <-- 1. Import component mới
+import './AdminCommon.css';
+import FullScreenLoader from '../Common/FullScreenLoader';
+import { notifySuccess, notifyError } from '../../services/notificationService';
+import FileUpload from '../Common/FileUpload';
+import { Editor } from '@tinymce/tinymce-react';
 
 const AdminFigureForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditing = Boolean(id);
 
-    // 1. Thêm 'podcast' vào state ban đầu
     const [figure, setFigure] = useState({
         name: '',
         description: '',
         era: '',
         images: [],
-        podcast: '', // Thêm trường podcast
+        podcast: '',
     });
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -32,11 +30,10 @@ const AdminFigureForm = () => {
                 setIsProcessing(true);
                 try {
                     const res = await api.get(`/figures/${id}`);
-                    // Đảm bảo state được cập nhật đúng nếu dữ liệu trả về thiếu trường
                     setFigure({
                         name: res.data.name || '',
-                        description: res.data.bio || '', // Hoặc res.data.bio tùy vào API
-                        era: res.data.period || '',                 // Hoặc res.data.period tùy vào API
+                        description: res.data.bio || '',
+                        era: res.data.period || '',
                         images: res.data.images || [],
                         podcast: (res.data.podcast && res.data.podcast.length > 0) ? res.data.podcast[0].audioUrl : ''
                     });
@@ -54,6 +51,10 @@ const AdminFigureForm = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFigure(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleDescriptionChange = (content, editor) => {
+        setFigure(prev => ({ ...prev, description: content }));
     };
 
     const handleImageUpload = async (files) => {
@@ -96,7 +97,6 @@ const AdminFigureForm = () => {
         e.preventDefault();
         setIsProcessing(true);
         try {
-            // Dữ liệu 'figure' bây giờ đã có trường podcast
             if (isEditing) {
                 await api.put(`/figures/${id}`, figure);
                 notifySuccess('Cập nhật nhân vật thành công!');
@@ -123,7 +123,6 @@ const AdminFigureForm = () => {
                         <i className="fa-solid fa-arrow-left"></i> Quay lại
                     </Link>
                 </div>
-
                 <div className="content-body">
                     <form onSubmit={handleSubmit}>
                         <div className="form-columns-container">
@@ -134,7 +133,17 @@ const AdminFigureForm = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Tiểu sử / Mô tả</label>
-                                    <textarea name="description" value={figure.description} onChange={handleChange} rows="8"></textarea>
+                                    <Editor
+                                        apiKey="flsyfec8qkmij2131x49jdx6tsl0hpjzl4060chgie1u6rt1" // <-- THAY BẰNG API KEY CỦA BẠN
+                                        value={figure.description}
+                                        init={{
+                                            height: 350,
+                                            menubar: true,
+                                            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
+                                            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
+                                        }}
+                                        onEditorChange={handleDescriptionChange}
+                                    />
                                 </div>
                             </div>
                             <div className="form-column-aside">
@@ -142,18 +151,14 @@ const AdminFigureForm = () => {
                                     <label>Thời kỳ</label>
                                     <input type="text" name="era" value={figure.era} onChange={handleChange} placeholder="Ví dụ: Nhà Trần, Triều Nguyễn..." />
                                 </div>
-                                {/* 2. Thêm ô nhập liệu cho Podcast */}
                                 <div className="form-group">
                                     <FileUpload
                                         label="File Podcast (Video/Audio)"
-                                        uploadPreset="dakk_unsigned_preset" // Preset của bạn
+                                        uploadPreset="dakk_unsigned_preset"
                                         onUploadSuccess={(url) => {
-                                            // 3. Cập nhật state với URL nhận được
                                             setFigure(prev => ({ ...prev, podcast: url }));
-                                            // Bạn cũng có thể hiển thị thông báo thành công ở đây
                                         }}
                                     />
-                                    {/* Hiển thị link sau khi đã upload thành công */}
                                     {figure.podcast && (
                                         <div style={{ marginTop: '10px', fontSize: '0.9em' }}>
                                             <p style={{ margin: 0, fontWeight: 'bold' }}>Đã tải lên:</p>
@@ -189,11 +194,10 @@ const AdminFigureForm = () => {
                                 ))}
                             </div>
                         </div>
-
                         <div className="form-actions">
                             <button type="submit" className="add-new-btn" disabled={isProcessing}>
                                 <i className="fa-solid fa-save"></i>
-                                {isProcessing ? 'Đang xử lý...' : (isEditing ? 'Tạo nhân vật' : 'Lưu thay đổi')}
+                                {isProcessing ? 'Đang xử lý...' : (isEditing ? 'Lưu thay đổi' : 'Tạo nhân vật')}
                             </button>
                         </div>
                     </form>
