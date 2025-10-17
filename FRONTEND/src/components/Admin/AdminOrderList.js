@@ -64,6 +64,25 @@ const AdminOrderList = () => {
     return <FullScreenLoader />;
   }
 
+  const handleVerify = async (orderId, verified) => {
+    try {
+      await api.put(`/orders/${orderId}/verify-bill`, {
+        verified,
+        note: verified ? '' : 'Thanh toán không hợp lệ'
+      });
+      notifySuccess('Cập nhật xác minh thành công!');
+      setOrders(orders.map(order =>
+        order._id === orderId
+          ? { ...order, billVerified: verified, paymentStatus: verified ? 'paid' : 'failed' }
+          : order
+      ));
+    } catch (err) {
+      console.error(err);
+      notifyError('Xác minh thất bại');
+    }
+  };
+
+
   return (
     <>
       <div className="content-card">
@@ -80,6 +99,8 @@ const AdminOrderList = () => {
                 <th>Thanh toán</th>
                 <th>Trạng thái ĐH</th>
                 <th>Ngày đặt</th>
+                <th>Bill</th>
+                <th>Verify</th>
                 <th style={{ width: '100px', textAlign: 'center' }}>Chi tiết</th>
               </tr>
             </thead>
@@ -111,6 +132,25 @@ const AdminOrderList = () => {
                       </div>
                     </td>
                     <td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
+                    <td>
+                      {order.billImage ? (
+                        <img src={order.billImage} alt="bill" style={{ width: 50, borderRadius: 4 }} />
+                      ) : (
+                        'Chưa upload'
+                      )}
+                    </td>
+                    <td>
+                      {!order.billVerified && order.billImage ? (
+                        <>
+                          <button onClick={() => handleVerify(order._id, true)} className="btn-verify">✅</button>
+                          <button onClick={() => handleVerify(order._id, false)} className="btn-reject">❌</button>
+                        </>
+                      ) : order.billVerified ? (
+                        'Đã xác minh'
+                      ) : (
+                        'Chưa upload'
+                      )}
+                    </td>
                     <td>
                       <div className="action-buttons">
                         <button onClick={() => handleViewDetails(order)} className="btn-view" title="Xem chi tiết">

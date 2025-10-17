@@ -182,3 +182,66 @@
 .close-modal-btn:hover {
     background-color: #3498db;
 }
+
+/* Responsive CheckoutPage */
+@media (max-width: 768px) {
+    .checkout-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .order-summary {
+        position: relative;
+        top: 0;
+    }
+
+    .qr-modal-content {
+        max-width: 95%;
+        padding: 20px;
+    }
+
+    .qr-code-image {
+        width: 200px;
+        height: 200px;
+    }
+
+    .place-order-btn {
+        font-size: 1rem;
+        padding: 12px;
+    }
+}
+
+/* Responsive nhỏ hơn 480px (mobile nhỏ) */
+@media (max-width: 480px) {
+    .shipping-info h2,
+    .order-summary h2 {
+        font-size: 1.2rem;
+    }
+
+    .summary-item,
+    .summary-total {
+        font-size: 0.85rem;
+    }
+
+    .qr-modal-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .qr-info strong {
+        font-size: 1rem;
+    }
+
+    .close-modal-btn {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+    }
+
+    .payment-methods label {
+        padding: 10px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="tel"] {
+        padding: 10px;
+    }
+}

@@ -4,7 +4,10 @@ const Product = require('../models/product');
 const querystring = require('qs');
 const crypto = require("crypto");
 const axios = require("axios");
-
+const cloudinary = require('../../utils/cloudinary');
+const { generateVietQR } = require('../../utils/vietqr');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 // @desc    Tạo đơn hàng mới từ giỏ hàng
 // @route   POST /api/orders
 // @access  Private (User)
@@ -35,7 +38,7 @@ exports.createOrder = async (req, res) => {
             });
         }
 
-        const shippingFee = 30000;
+        const shippingFee = 0;
         const totalAmount = subTotal + shippingFee;
 
         const order = await Order.create({
@@ -47,7 +50,6 @@ exports.createOrder = async (req, res) => {
             subTotal,
             shippingFee,
             totalAmount,
-            // Với VietQR, trạng thái ban đầu luôn là chưa thanh toán
             status: 'pending',
             paymentStatus: 'pending',
         });
@@ -61,28 +63,33 @@ exports.createOrder = async (req, res) => {
 
         await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
 
-        // --- TẠO DỮ LIỆU VIETQR ĐỂ TRẢ VỀ ---
-        let qrData = null;
+        // --- FIX qrData undefined ---
+        let qrData; // khai báo bên ngoài if
         if (paymentMethod === 'VIETQR') {
             const bankId = process.env.VIETQR_BANK_ID;
             const accountNo = process.env.VIETQR_ACCOUNT_NO;
             const accountName = process.env.VIETQR_ACCOUNT_NAME;
-            // Nội dung chuyển khoản chính là ID của đơn hàng để dễ dàng tra cứu
-            const description = `Thanh toan don hang ${order._id}`;
+
+            const productNames = orderItems.map(item => item.product.name).join(', ');
+
+            const description = `Thanh toán: ${productNames}`;
 
             const qrImageUrl = `https://api.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
 
             qrData = {
                 qrImageUrl,
                 amount: totalAmount,
-                description: order._id.toString() // Gửi mã đơn hàng về để hiển thị cho người dùng
+                description: order._id.toString()
             };
+
+            order.qrData = qrData; // lưu vào DB
+            await order.save();
         }
 
         res.status(201).json({
             message: "Đặt hàng thành công!",
             order,
-            qrData // Trả về qrData nếu là thanh toán VietQR
+            qrData // giờ đây luôn tồn tại, undefined nếu không phải VIETQR
         });
 
     } catch (error) {
@@ -133,7 +140,7 @@ exports.updateOrderStatus = async (req, res) => {
         if (paymentStatus) updateData.paymentStatus = paymentStatus;
 
         const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        
+
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
         }
@@ -359,4 +366,88 @@ exports.momoIpn = async (req, res) => {
     } catch (error) {
         res.status(500).send();
     }
+};
+
+exports.updateVietQRPaymentStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { paymentStatus } = req.body; // "paid" hoặc "failed"
+
+        const order = await Order.findByIdAndUpdate(
+            id,
+            { paymentStatus },
+            { new: true }
+        );
+
+        if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        res.json({ message: 'Cập nhật trạng thái thanh toán thành công', order });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server', error: error.message });
+    }
+};
+
+
+exports.uploadVietQRBill = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const file = req.file.path;
+
+        const result = await cloudinary.uploader.upload(file, { folder: 'bills' });
+
+        const order = await Order.findByIdAndUpdate(
+            id,
+            { billImage: result.secure_url },
+            { new: true }
+        );
+
+        if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        res.json({ message: 'Upload ảnh bill thành công', order });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi upload bill', error: error.message });
+    }
+};
+
+exports.confirmPayment = async (req, res) => {
+    try {
+        const order = await Order.findByIdAndUpdate(req.params.id, { paymentStatus: 'paid' }, { new: true });
+        if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        res.json({ message: 'Đã xác nhận thanh toán', order });
+    } catch (err) {
+        res.status(500).json({ message: 'Xác nhận thất bại', error: err.message });
+    }
+};
+
+
+exports.verifyBill = async (req, res) => {
+    try {
+        const { verified, note } = req.body;
+        const adminId = req.user.id;
+
+        const update = {
+            billVerified: verified,
+            verificationNote: note || ''
+        };
+
+        if (verified) {
+            update.verifiedBy = adminId;
+            update.verifiedAt = new Date();
+            update.paymentStatus = 'paid';
+            update.status = 'processing';
+        } else {
+            update.paymentStatus = 'failed';
+            update.status = 'pending';
+        }
+
+        const order = await Order.findByIdAndUpdate(req.params.id, update, { new: true });
+        res.json({ message: 'Đã cập nhật xác minh', order });
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi server', error: err.message });
+    }
+};
+
+exports.getVietQR = async (req, res) => {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Đơn hàng không tồn tại' });
+    if (!order.qrData) return res.status(400).json({ message: 'Đơn hàng chưa có QR' });
+    res.json({ qrData: order.qrData });
 };

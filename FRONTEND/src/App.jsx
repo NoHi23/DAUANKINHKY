@@ -43,6 +43,8 @@ import PaymentResultPage from './components/Checkout/PaymentResultPage';
 import BackToTopButton from './components/Common/BackToTopButton'; // <<-- 1. IMPORT
 import ScrollToTop from './components/Common/ScrollToTop';
 import ContactPage from './components/Contact/ContactPage';
+import VietQRPaymentPage from './components/Checkout/PaymentVietQRPage';
+
 function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
@@ -71,7 +73,7 @@ function AppContent() {
               <Route path='/figures' element={<FigureListPage />} />
               <Route path='/figures/:id' element={<FigureDetailPage />} />
               <Route path='/blog' element={<BlogPage />} />
-              <Route path='/contact' element={<ContactPage/>}/>
+              <Route path='/contact' element={<ContactPage />} />
               <Route path='/posts/:id' element={<PostDetailPage />} />
 
               <Route path='/login' element={<LoginPage />} />
@@ -84,6 +86,9 @@ function AppContent() {
                 <Route path='/order-history' element={<OrderHistoryPage />} />
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/checkout' element={<CheckoutPage />} />
+                <Route path='/checkout/vietqr/:orderId' element={<VietQRPaymentPage />} />
+                <Route path="/payment-success" element={<PaymentSuccessPage />} />
+                <Route path="/payment-fail" element={<PaymentFailPage />} />
               </Route>
 
               <Route element={<ProtectedRoute allowedRoles={['admin', 'moderator']} />}>
@@ -117,7 +122,7 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-    <ScrollToTop />
+      <ScrollToTop />
       <AuthProvider>
         <CartProvider>
           <AppContent />

@@ -1,12 +1,9 @@
-// src/pages/Blog/PostItem.js
-
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../services/api';
 import { notifySuccess, notifyError } from '../../services/notificationService';
 import { showConfirmDialog } from '../../services/confirmationService';
 
-// Hàm tính thời gian tương đối
 const timeSince = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
     let interval = seconds / 31536000;
@@ -25,17 +22,15 @@ const timeSince = (date) => {
 const PostItem = ({ post, onPostDeleted }) => {
     const { user } = useContext(AuthContext);
 
-    // State cho chức năng Like
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likes.length);
 
-    // State cho chức năng Comment
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [comments, setComments] = useState(post.comments || []);
     const [newComment, setNewComment] = useState('');
-    const [isLoadingComments, setIsLoadingComments] = useState(false); // State báo đang tải comments
+    const [isLoadingComments, setIsLoadingComments] = useState(false);
     const [hasFetchedComments, setHasFetchedComments] = useState(false);
-    // Kiểm tra xem user hiện tại đã like bài viết này chưa
+
     useEffect(() => {
         setComments(post.comments || []);
     }, [post.comments]);
@@ -53,27 +48,25 @@ const PostItem = ({ post, onPostDeleted }) => {
             notifyError("Bạn cần đăng nhập để thích bài viết!");
             return;
         }
-        // Cập nhật giao diện tạm thời
-        setIsLiked(!isLiked);
-        setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+
+        const originalIsLiked = isLiked;
+        const originalLikeCount = likeCount;
+
+        setIsLiked(!originalIsLiked);
+        setLikeCount(originalIsLiked ? originalLikeCount - 1 : originalLikeCount + 1);
+
         try {
-            // *** ĐỂ LƯU VĨNH VIỄN, BẠN CẦN XÂY DỰNG API VÀ BỎ COMMENT DÒNG DƯỚI ***
             await api.put(`/posts/${post._id}/like`);
         } catch (error) {
-            // Nếu gọi API lỗi, trả lại trạng thái cũ
-            setIsLiked(!isLiked);
-            setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+            setIsLiked(originalIsLiked);
+            setLikeCount(originalLikeCount);
             notifyError("Đã có lỗi xảy ra.");
         }
     };
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
-        if (!user) {
-            notifyError("Bạn cần đăng nhập để bình luận!");
-            return;
-        }
+        if (!newComment.trim() || !user) return;
 
         const tempId = Date.now().toString();
         const tempComment = {
@@ -89,10 +82,7 @@ const PostItem = ({ post, onPostDeleted }) => {
         try {
             const response = await api.post(`/posts/${post._id}/comments`, { content: newComment });
             const savedComment = response.data;
-
-            setComments(prevComments =>
-                prevComments.map(c => (c._id === tempId ? savedComment : c))
-            );
+            setComments(prevComments => prevComments.map(c => (c._id === tempId ? savedComment : c)));
         } catch (error) {
             notifyError("Bình luận thất bại.");
             setComments(prevComments => prevComments.filter(c => c._id !== tempComment._id));
@@ -112,13 +102,12 @@ const PostItem = ({ post, onPostDeleted }) => {
         }
     };
 
-
     const fetchComments = async () => {
         setIsLoadingComments(true);
         try {
             const response = await api.get(`/posts/${post._id}/comments`);
             setComments(response.data);
-            setHasFetchedComments(true); // Đánh dấu là đã fetch thành công
+            setHasFetchedComments(true);
         } catch (error) {
             notifyError("Không thể tải các bình luận.");
         } finally {
@@ -129,12 +118,11 @@ const PostItem = ({ post, onPostDeleted }) => {
     const handleToggleComments = () => {
         const nextVisibility = !commentsVisible;
         setCommentsVisible(nextVisibility);
-
-        // Nếu chuẩn bị hiển thị và chưa fetch lần nào thì mới gọi API
         if (nextVisibility && !hasFetchedComments) {
             fetchComments();
         }
     };
+
     return (
         <div className="post-card card">
             <div className="post-header">
@@ -143,7 +131,7 @@ const PostItem = ({ post, onPostDeleted }) => {
                     <span className="author-name">{post.author.name}</span>
                     <span className="post-timestamp">{timeSince(post.createdAt)}</span>
                 </div>
-                {user && user._id === post.author._id && (
+                {user && (user._id === post.author._id || user.role === 'admin' || user.role === 'moderator') && (
                     <div className="post-options">
                         <i className="fa-solid fa-ellipsis"></i>
                         <div className="options-dropdown">
@@ -152,9 +140,8 @@ const PostItem = ({ post, onPostDeleted }) => {
                     </div>
                 )}
             </div>
-            <div className="post-body">
-                <p>{post.content}</p>
-            </div>
+
+            <div className="post-body" dangerouslySetInnerHTML={{ __html: post.content }} />
 
             <div className="post-stats">
                 {likeCount > 0 && <span><i className="fa-solid fa-heart"></i> {likeCount}</span>}
@@ -185,9 +172,8 @@ const PostItem = ({ post, onPostDeleted }) => {
                                             <div className="comment-body">
                                                 <div className="comment-content">
                                                     <span className="author-name">{comment.author.name}</span>
-                                                    <p>{comment.content}</p>
+                                                    <div dangerouslySetInnerHTML={{ __html: comment.content }} />
                                                 </div>
-                                                {/* Thêm timestamp cho comment */}
                                                 <span className="comment-timestamp">{timeSince(comment.createdAt)}</span>
                                             </div>
                                         </div>
@@ -203,7 +189,7 @@ const PostItem = ({ post, onPostDeleted }) => {
                                         type="text"
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
-                                        placeholder="Viết bình luận..." style={{width:"80%"}}
+                                        placeholder="Viết bình luận..."
                                     />
                                     <button type="submit">Gửi</button>
                                 </form>

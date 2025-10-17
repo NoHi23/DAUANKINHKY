@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
-import ProductCard from '../Products/ProductCard'; // Tái sử dụng ProductCard
+import ProductCard from '../Products/ProductCard';
 import './FigurePage.css';
-import FullScreenLoader from '../../components/Common/FullScreenLoader'; // Thêm Loader cho trải nghiệm tốt hơn
+import FullScreenLoader from '../../components/Common/FullScreenLoader';
 
 const FigureDetailPage = () => {
     const { id } = useParams();
@@ -44,8 +44,6 @@ const FigureDetailPage = () => {
                 <p className="period">{figure.period}</p>
             </div>
             <div className="figure-detail-content">
-                <p className="bio">{figure.bio}</p>
-                {/* Phần Podcast có thể thêm ở đây */}
                 {mainPodcast && (
                     <div className="podcast-section">
                         <h2>Podcast / Video nổi bật</h2>
@@ -62,6 +60,9 @@ const FigureDetailPage = () => {
                         <p className="podcast-title">{mainPodcast.title}</p>
                     </div>
                 )}
+                <div className="bio" dangerouslySetInnerHTML={{ __html: figure.bio }} />
+
+
                 <div className="related-products">
                     <h2>Sản phẩm liên quan</h2>
                     <div className="product-grid">

@@ -28,17 +28,22 @@ export const CartProvider = ({ children }) => {
   }, [user]);
 
   const addItemToCart = async (productId, quantity) => {
-    if (!user) {
-      notifyInfo("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
-      return false;
-    }
     try {
       const response = await api.post('/cart/items', { productId, quantity });
-      setCart(response.data);
-      return true;
+
+      if (response.status === 200) {
+        setCart(response.data);
+        return true;
+      }
+      return false;
     } catch (error) {
-      console.error("Failed to add item to cart:", error);
-      notifyError("Thêm sản phẩm thất bại. Vui lòng thử lại.");
+      let errorMessage = 'Không thể thêm sản phẩm vào giỏ hàng.';
+
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      notifyError(errorMessage);
       return false;
     }
   };
@@ -46,12 +51,23 @@ export const CartProvider = ({ children }) => {
     try {
       if (quantity <= 0) {
         await removeItemFromCart(productId);
-        return;
+        return true;
       }
       const response = await api.put(`/cart/items/${productId}`, { quantity });
-      setCart(response.data);
+      if (response.status === 200) {
+        setCart(response.data);
+        return true;
+      }
+      return false;
     } catch (error) {
-      console.error("Failed to update quantity:", error);
+      let errorMessage = 'Cập nhật số lượng thất bại.';
+
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      notifyError(errorMessage);
+      return false;
     }
   };
 
