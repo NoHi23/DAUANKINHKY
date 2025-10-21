@@ -25,7 +25,7 @@ const ProductListPage = () => {
         };
 
         fetchProducts();
-    }, []); // Mảng rỗng đảm bảo useEffect chỉ chạy 1 lần khi component mount
+    }, []); 
 
     if (loading) return <FullScreenLoader />;
     if (error) return <div className="error-message">{error}</div>;

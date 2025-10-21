@@ -126,7 +126,8 @@ const ProductDetailPage = () => {
             <div className="figure-bio">
               <h3>{product.historicalFigure.name}</h3>
               <p className="period">Thời kỳ: {product.historicalFigure.period}</p>
-              <p className="bio">{product.historicalFigure.bio}</p>
+
+              <div className="bio"  dangerouslySetInnerHTML={{ __html: product.historicalFigure.bio }}/>
             </div>
           </div>
         </div>
