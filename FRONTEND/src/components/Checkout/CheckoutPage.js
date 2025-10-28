@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import api from '../../services/api';
 import './CheckoutPage.css';
 import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
+import FullScreenLoader from '../Common/FullScreenLoader';
 
 const QRCodeModal = ({ qrData, onConfirm, onClose }) => {
     if (!qrData) return null;
@@ -59,6 +60,7 @@ const CheckoutPage = () => {
     const navigate = useNavigate();
     const { id: orderIdFromParams } = useParams();
     const location = useLocation();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         shippingAddress: '',
@@ -91,13 +93,15 @@ const CheckoutPage = () => {
                 setOrderId(orderIdFromParams);
                 return;
             }
-
+            setIsLoading(true);
             try {
                 const res = await api.get(`/orders/${orderIdFromParams}/qr`);
                 setQrData(res.data.qrData);
                 setOrderId(orderIdFromParams);
             } catch (err) {
                 notifyError(err.response?.data?.message || 'Không thể tải QR code');
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchQR();
@@ -109,6 +113,7 @@ const CheckoutPage = () => {
 
     const handleSubmit = async e => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const response = await api.post('/orders', formData);
             await fetchCart();
@@ -126,12 +131,16 @@ const CheckoutPage = () => {
         } catch (error) {
             console.error('Lỗi khi đặt hàng:', error);
             notifyError(error.response?.data?.message || 'Đặt hàng thất bại.');
+        } finally {
+            // Luôn tắt loading dù thành công hay thất bại
+            setIsLoading(false);
         }
     };
 
 
     const handleConfirmPayment = async () => {
         if (!orderId) return;
+        setIsLoading(true);
         try {
             await api.post(`/orders/${orderId}/confirm-payment`);
             notifySuccess('Thanh toán thành công!');
@@ -139,6 +148,9 @@ const CheckoutPage = () => {
             navigate(`/payment-success?orderId=${orderId}`);
         } catch (error) {
             notifyError('Xác nhận thanh toán thất bại!');
+        } finally {
+            // Luôn tắt loading
+            setIsLoading(false);
         }
     };
 
@@ -168,10 +180,11 @@ const CheckoutPage = () => {
 
     return (
         <>
+            <FullScreenLoader loading={isLoading} />
             <QRCodeModal
                 qrData={qrData}
                 onConfirm={handleConfirmPayment}
-                onClose={handleCloseModal}
+                onClose={handleCloseModal} isLoading={isLoading}
             />
 
             <form className="checkout-container" onSubmit={handleSubmit}>
@@ -240,8 +253,12 @@ const CheckoutPage = () => {
                             <span>Tổng cộng</span>
                             <span>{formatPrice(subTotal)}</span>
                         </div>
-                        <button type="submit" className="place-order-btn">
-                            Hoàn tất đơn hàng
+                        <button
+                            type="submit"
+                            className="place-order-btn"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Đang xử lý...' : 'Hoàn tất đơn hàng'}
                         </button>
                     </div>
                 </div>

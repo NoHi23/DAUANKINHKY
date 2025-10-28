@@ -3,13 +3,12 @@ const router = express.Router();
 const { createOrder, getMyOrders, getOrderById, updateOrderStatus, vnpayReturn, getVietQR, createPaymentUrl, getAllOrders, createMomoUrl, momoIpn, updateVietQRPaymentStatus, uploadVietQRBill, verifyBill, confirmPayment } = require('../controllers/orderController');
 const { verifyToken, authorize } = require('../middleware/authorization');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 
 
 router.post('/', verifyToken, createOrder);
 router.put('/:id/payment', updateVietQRPaymentStatus);
 router.put('/:id/confirm-payment', verifyToken, confirmPayment);
-router.post('/:id/upload-bill', upload.single('billImage'), uploadVietQRBill);
+router.post('/:id/upload-bill', uploadVietQRBill);
 router.put('/:id/verify-bill', verifyToken, authorize('admin', 'moderator'), verifyBill);
 
 router.get('/', verifyToken, getMyOrders);
