@@ -1,8 +1,11 @@
+// src/pages/User/OrderHistoryPage.js (Giả sử đường dẫn)
+
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
 import './OrderHistoryPage.css';
 import { notifySuccess, notifyError } from '../../services/notificationService';
 import FullScreenLoader from '../Common/FullScreenLoader';
+import axios from 'axios'; // (SỬA) 1. Import axios trần để gọi Cloudinary (giống code mẫu)
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]);
@@ -43,7 +46,7 @@ const OrderHistoryPage = () => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
 
-    // (MỚI) Hàm reset toàn bộ state upload/preview
+    // Hàm reset toàn bộ state upload/preview
     const fullReset = () => {
         if (tempPreviewUrl) {
             URL.revokeObjectURL(tempPreviewUrl); // Thu hồi URL để giải phóng bộ nhớ
@@ -63,7 +66,7 @@ const OrderHistoryPage = () => {
         fileInputRef.current.click();
     };
 
-    // (ĐÃ SỬA) Hàm này giờ CHỈ KIỂM TRA VÀ MỞ PREVIEW
+    // Hàm này CHỈ KIỂM TRA VÀ MỞ PREVIEW (giữ nguyên, đã đúng)
     const handleFileSelected = (e) => {
         const file = e.target.files[0];
         const orderId = selectedOrderIdForUpload; // Lấy ID đã lưu
@@ -90,7 +93,7 @@ const OrderHistoryPage = () => {
         setTempPreviewUrl(URL.createObjectURL(file));
     };
 
-    // (ĐÃ SỬA) Hàm này THỰC SỰ TẢI LÊN (upload)
+    // (SỬA) 2. Hàm này được viết lại hoàn toàn theo logic của code mẫu
     const handleConfirmUpload = async () => {
         if (!fileToUpload || !selectedOrderIdForUpload) {
             notifyError("Lỗi: Không tìm thấy tệp hoặc ID đơn hàng.");
@@ -101,25 +104,50 @@ const OrderHistoryPage = () => {
         const orderId = selectedOrderIdForUpload;
         setUploadingOrderId(orderId); // Bắt đầu loading (cho nút trong modal)
 
-        const form = new FormData();
-        form.append('billImage', fileToUpload);
+        // --- BƯỚC 1: Tải ảnh lên Cloudinary (giống code mẫu) ---
+        const formData = new FormData();
+        formData.append('file', fileToUpload);
+        formData.append('upload_preset', 'dakk_unsigned_preset'); // Lấy từ code mẫu
 
+        let secure_url;
         try {
-            // 1. CHỈ GỌI API, không dùng data trả về
-            await api.post(`/orders/${orderId}/upload-bill`, form, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const cloudinaryRes = await axios.post(
+                'https://api.cloudinary.com/v1_1/dpnycqrxe/image/upload', // Lấy từ code mẫu
+                formData
+            );
+            secure_url = cloudinaryRes.data.secure_url; // Lấy URL trả về
+        } catch (uploadError) {
+            notifyError('Tải ảnh lên Cloudinary thất bại.');
+            console.error("Lỗi Cloudinary:", uploadError);
+            setUploadingOrderId(null); // Tắt loading
+            // Không reset full() để người dùng có thể thử lại
+            return;
+        }
 
-            notifySuccess('Cập nhật biên lai thành công!');
-            
-            // 2. GỌI LẠI fetchOrders() để lấy dữ liệu mới nhất (bao gồm cả paymentReceiptUrl)
-            await fetchOrders();
+        // --- BƯỚC 2: Gửi URL về backend của bạn để lưu ---
+        if (secure_url) {
+            try {
+                // Gửi URL về backend. 
+                // Backend của bạn cần chấp nhận JSON вида { billImageUrl: "http://..." }
+                // tại endpoint này.
+                await api.post(`/orders/${orderId}/upload-bill`, { 
+                    billImage: secure_url 
+                });
 
-        } catch (err) {
-            notifyError('Upload thất bại. Vui lòng thử lại.');
-            console.error("Lỗi khi upload bill:", err);
-        } finally {
-            fullReset(); // 3. Dọn dẹp tất cả state (bao gồm cả tắt loading)
+                notifySuccess('Cập nhật biên lai thành công!');
+                
+                // GỌI LẠI fetchOrders() để lấy dữ liệu mới nhất
+                await fetchOrders();
+
+            } catch (err) {
+                notifyError('Lưu URL biên lai thất bại. Vui lòng thử lại.');
+                console.error("Lỗi khi lưu URL vào backend:", err);
+            } finally {
+                fullReset(); // 3. Dọn dẹp tất cả state (bao gồm cả tắt loading)
+            }
+        } else {
+             notifyError('Không nhận được URL từ Cloudinary.');
+             fullReset();
         }
     };
 
@@ -175,12 +203,9 @@ const OrderHistoryPage = () => {
             ) : (
                 orders.map(order => {
                     // Định nghĩa các biến trạng thái cho dễ đọc
-                    const hasBill = order.paymentReceiptUrl && order.paymentReceiptUrl !== '';
+                    const hasBill = order.billImage && order.billImage !== '';
                     const isPending = (order.status || '').toLowerCase() === 'pending';
                     const isProcessing = (order.status || '').toLowerCase() === 'processing';
-                    
-                    // Chúng ta không cần state 'isLoading' riêng nữa
-                    // vì modal 'Xác nhận' đã xử lý việc loading
                     
                     return (
                         <div key={order._id} className="order-card">
@@ -205,23 +230,25 @@ const OrderHistoryPage = () => {
                                     {hasBill && (
                                         <button
                                             className="view-bill-link"
+                                            // (SỬA) 3. Lỗi logic: Dùng 'paymentReceiptUrl' 
+                                            // thay vì 'billImage'
                                             onClick={() => setPreviewImageUrl(order.billImage)}
                                         >
                                             <i className="fa-solid fa-receipt"></i> Xem biên lai
                                         </button>
                                     )}
 
-                                    {/* 2. Luôn hiển thị "Upload/Update" nếu là PENDING hoặc PROCESSING */}
-                                    {(isPending) && (
+                                    {/* 2. Hiển thị "Upload/Update" nếu là PENDING hoặc PROCESSING */}
+                                    {/* (SỬA) 4. Lỗi logic: Phải là (isPending || isProcessing)
+                                        như comment của bạn */}
+                                    {(isPending || isProcessing) && (
                                         <button
                                             className="upload-bill-btn"
                                             onClick={() => handleTriggerUpload(order._id)}
-                                            // Không cần 'disabled' ở đây nữa
                                         >
                                             <i className="fa-solid fa-upload"></i>
-                                            
-                                            {/* SỬA LỖI LOGIC TEXT: Dựa vào hasBill */}
-                                            {hasBill ? 'Cập nhật' : 'Tải lên hoặc cập nhật lại biên lai'}
+                                            {/* Sửa text cho gọn */}
+                                            {hasBill ? 'Cập nhật biên lai' : 'Tải lên biên lai'}
                                         </button>
                                     )}
                                 </div>

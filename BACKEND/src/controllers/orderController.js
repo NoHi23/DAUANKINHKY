@@ -389,18 +389,25 @@ exports.updateVietQRPaymentStatus = async (req, res) => {
 exports.uploadVietQRBill = async (req, res) => {
     try {
         const { id } = req.params;
-        const file = req.file.path;
-
-        const result = await cloudinary.uploader.upload(file, { folder: 'bills' });
+        const { billImage } = req.body;
+        if (!billImage) {
+            return res.status(400).json({ message: 'Không có URL của bill (billImage) được gửi lên' });
+        }
 
         const order = await Order.findByIdAndUpdate(
             id,
-            { billImage: result.secure_url },
+            {
+                billImage: billImage, // Lưu thẳng URL
+                status: 'processing'  // (Quan trọng) Cập nhật trạng thái chờ admin duyệt
+            },
             { new: true }
         );
 
-        if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
-        res.json({ message: 'Upload ảnh bill thành công', order });
+        if (!order) {
+            return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        }
+
+        res.json({ message: 'Cập nhật ảnh bill thành công', order });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi upload bill', error: error.message });
     }
