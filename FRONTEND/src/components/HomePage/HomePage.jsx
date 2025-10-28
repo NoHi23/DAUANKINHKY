@@ -6,7 +6,36 @@ import './HomePage.css';
 import { CartContext } from '../../context/AuthContext'; // Import CartContext
 import { notifySuccess, notifyError, notifyInfo } from '../../services/notificationService';
 import { showConfirmDialog } from '../../services/confirmationService';
-
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Import CSS
+import { Carousel } from 'react-responsive-carousel';
+const galleryImages = [
+  {
+    imgUrl: '/h00.png',
+  },
+  {
+    imgUrl: '/h0.jpg',
+  }, {
+    imgUrl: '/h1.jpg',
+  }, {
+    imgUrl: '/h2.jpg',
+  }, {
+    imgUrl: '/h3.jpg',
+  }, {
+    imgUrl: '/h4.jpg',
+  }, {
+    imgUrl: '/h5.jpg',
+  }, {
+    imgUrl: '/h6.jpg',
+  }, {
+    imgUrl: '/h7.jpg',
+  }, {
+    imgUrl: '/h8.jpg',
+  }, {
+    imgUrl: '/h9.jpg',
+  }, {
+    imgUrl: '/h10.jpg',
+  },
+];
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
 
@@ -50,11 +79,35 @@ const HomePage = () => {
         </div>
       </section>
 
+      <section className="gallery-section">
+        <h2 className="section-title">Hình ảnh sản phẩm thực tế</h2>
+        <div className="carousel-wrapper">
+          <Carousel
+            autoPlay={true}
+            infiniteLoop={true}
+            showThumbs={false}      // Ẩn thumbnail
+            showStatus={false}      // Ẩn "1 of 5"
+            showIndicators={true}   // Hiện dấu chấm
+            interval={3500}         // Tốc độ
+            centerMode={true}       // Chế độ xem giữa
+            centerSlidePercentage={33.33} // Desktop: 3 ảnh
+            className="gallery-carousel" // Class tùy chỉnh
+            emulateTouch={true}
+          >
+            {galleryImages.map((image, index) => (
+              <div key={index} className="gallery-slide-item">
+                <img src={image.imgUrl} alt={image.label} />
+              </div>
+            ))}
+          </Carousel>
+        </div>
+      </section>
+
       <section className="concept-section">
         <div className="concept-content">
           <h2>Hơn cả một sản phẩm</h2>
           <p>Chúng tôi không chỉ bán những vật phẩm, chúng tôi mang đến những câu chuyện. Mỗi "Blink Box" được chế tác tỉ mỉ, đi kèm với podcast và nội dung độc quyền, giúp bạn thực sự sống lại những khoảnh khắc vàng son của lịch sử.</p>
-            
+
           <Link to="/figures" className="concept-button">Tìm hiểu các nhân vật <i className="fas fa-arrow-right"></i></Link>
         </div>
       </section>

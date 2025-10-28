@@ -16,6 +16,7 @@ const VietQRPaymentPage = () => {
       try {
         const res = await api.get(`/orders/${orderId}/vietqr`);
         setQrData(res.data.qrData);
+        
       } catch (error) {
         notifyError('Không thể tải QR code.');
         console.error(error);

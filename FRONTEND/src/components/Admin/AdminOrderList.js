@@ -12,6 +12,8 @@ const AdminOrderList = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isBillModalOpen, setIsBillModalOpen] = useState(false);
+  const [selectedBillImage, setSelectedBillImage] = useState(null);
 
   useEffect(() => {
     const fetchAllOrders = async () => {
@@ -51,6 +53,16 @@ const AdminOrderList = () => {
     setSelectedOrder(null);
   };
 
+  const handleOpenBillModal = (imageUrl) => {
+    setSelectedBillImage(imageUrl);
+    setIsBillModalOpen(true);
+  };
+
+  const handleCloseBillModal = () => {
+    setIsBillModalOpen(false);
+    setSelectedBillImage(null);
+  };
+
   const orderStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
   const statusTranslations = {
     pending: 'Chờ xử lý',
@@ -82,6 +94,60 @@ const AdminOrderList = () => {
     }
   };
 
+  const billModalStyles = {
+    overlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1050, // Đảm bảo nó nổi lên trên modal chi tiết (nếu có)
+    },
+    content: {
+      position: 'relative',
+      padding: '20px',
+      background: '#fff',
+      borderRadius: '8px',
+      textAlign: 'center',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+    },
+    image: {
+      maxWidth: '90vw',
+      maxHeight: '80vh',
+      objectFit: 'contain',
+      display: 'block',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: '-15px',
+      right: '-15px',
+      background: '#fff',
+      border: '2px solid #333',
+      borderRadius: '50%',
+      width: '30px',
+      height: '30px',
+      fontSize: '1.2rem',
+      fontWeight: 'bold',
+      color: '#333',
+      cursor: 'pointer',
+      lineHeight: '26px', // Căn giữa dấu 'X'
+      padding: 0,
+    },
+    downloadButton: {
+      display: 'inline-block',
+      marginTop: '15px',
+      padding: '10px 20px',
+      backgroundColor: '#007bff',
+      color: '#fff',
+      textDecoration: 'none',
+      borderRadius: '5px',
+      fontWeight: 'bold',
+    }
+  };
 
   return (
     <>
@@ -134,7 +200,13 @@ const AdminOrderList = () => {
                     <td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
                     <td>
                       {order.billImage ? (
-                        <img src={order.billImage} alt="bill" style={{ width: 50, borderRadius: 4 }} />
+                        <img
+                          src={order.billImage}
+                          alt="bill"
+                          style={{ width: 50, borderRadius: 4, cursor: 'pointer' }}
+                          onClick={() => handleOpenBillModal(order.billImage)}
+                          title="Nhấn để xem to"
+                        />
                       ) : (
                         'Chưa upload'
                       )}
@@ -172,6 +244,23 @@ const AdminOrderList = () => {
         </div>
       </div>
       {isModalOpen && <OrderDetailModal order={selectedOrder} onClose={handleCloseModal} />}
+      {isBillModalOpen && (
+        <div style={billModalStyles.overlay} onClick={handleCloseBillModal}>
+          <div style={billModalStyles.content} onClick={(e) => e.stopPropagation()}>
+            <button style={billModalStyles.closeButton} onClick={handleCloseBillModal}>&times;</button>
+            <img src={selectedBillImage} alt="Bill chi tiết" style={billModalStyles.image} />
+            <a
+              href={selectedBillImage}
+              download={`bill_order_${selectedBillImage.slice(-10)}.jpg`} // Tạo tên file download
+              target="_blank"
+              rel="noopener noreferrer"
+              style={billModalStyles.downloadButton}
+            >
+              <i className="fa-solid fa-download"></i> Tải xuống
+            </a>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -1,17 +1,37 @@
 // src/pages/Admin/Products/AdminProductForm.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import axios from 'axios';
 import './AdminCommon.css'; // Dùng lại CSS chung
 import FullScreenLoader from '../../components/Common/FullScreenLoader';
 import { notifySuccess, notifyError } from '../../services/notificationService';
-
+import JoditEditor from 'jodit-react';
 const AdminProductForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditing = Boolean(id);
+
+    const editorConfig = useMemo(() => ({
+        readonly: false,
+        height: 300, // Chiều cao phù hợp cho mô tả sản phẩm
+        placeholder: 'Nhập mô tả chi tiết cho sản phẩm...',
+        // Toolbar đầy đủ hơn cho mô tả sản phẩm
+        buttons: [
+            'bold', 'italic', 'underline', 'strikethrough', '|',
+            'ul', 'ol', '|',
+            'align', 'outdent', 'indent', '|',
+            'font', 'fontsize', 'brush', 'paragraph', '|',
+            'link', 'image', 'table', '|',
+            'undo', 'redo', 'source' // 'source' để xem code HTML
+        ],
+        showCharsCounter: false,
+        showWordsCounter: false,
+        showXPathInStatusbar: false,
+        // Style cho nội dung bên trong editor
+        iframeStyle: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; }'
+    }), []);
 
     const [product, setProduct] = useState({
         name: '', sku: '', description: '', price: 0, stockQuantity: 0,
@@ -49,6 +69,10 @@ const AdminProductForm = () => {
         setProduct(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
+    const handleDescriptionChange = (newContent) => {
+        setProduct(prev => ({ ...prev, description: newContent }));
+    };
+
     const handleImageUpload = async (files) => {
         if (!files || files.length === 0) return;
         setIsProcessing(true);
@@ -69,13 +93,13 @@ const AdminProductForm = () => {
             setIsProcessing(false);
         }
     };
-    
+
     const removeImage = (indexToRemove) => {
         setProduct(prev => ({
             ...prev, images: prev.images.filter((_, index) => index !== indexToRemove)
         }));
     };
-    
+
     // --- Drag & Drop Handlers ---
     const handleDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
     const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
@@ -85,7 +109,7 @@ const AdminProductForm = () => {
         const files = e.dataTransfer.files;
         if (files && files.length > 0) handleImageUpload(files);
     };
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsProcessing(true);
@@ -127,7 +151,12 @@ const AdminProductForm = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Mô tả</label>
-                                    <textarea name="description" value={product.description} onChange={handleChange} rows="8"></textarea>
+                                    <JoditEditor
+                                        value={product.description}
+                                        config={editorConfig}
+                                        onBlur={handleDescriptionChange} // Cập nhật state khi click ra ngoài
+                                    // Hoặc dùng: onChange={handleDescriptionChange}
+                                    />
                                 </div>
                             </div>
                             {/* Cột phụ */}
@@ -167,12 +196,12 @@ const AdminProductForm = () => {
                         {/* Khu vực Upload ảnh */}
                         <div className="image-upload-section">
                             <label>Hình ảnh sản phẩm</label>
-                            <div 
+                            <div
                                 className={`image-dropzone ${isDragging ? 'dragging' : ''}`}
                                 onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
                                 onDragOver={handleDragOver} onDrop={handleDrop}
                             >
-                                <input id="file-upload" type="file" multiple accept="image/*" onChange={(e) => handleImageUpload(e.target.files)} style={{display: 'none'}} />
+                                <input id="file-upload" type="file" multiple accept="image/*" onChange={(e) => handleImageUpload(e.target.files)} style={{ display: 'none' }} />
                                 <label htmlFor="file-upload" className="dropzone-inner">
                                     <i className="fa-solid fa-cloud-arrow-up"></i>
                                     <span>Kéo và thả ảnh vào đây, hoặc nhấn để chọn ảnh</span>

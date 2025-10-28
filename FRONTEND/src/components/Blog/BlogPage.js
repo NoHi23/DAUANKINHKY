@@ -1,16 +1,33 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import './BlogPage.css';
 import PostItem from './PostItem';
 import { notifySuccess, notifyError } from '../../services/notificationService';
-import { Editor } from '@tinymce/tinymce-react';
-
+// import { Editor } from '@tinymce/tinymce-react';
+import JoditEditor from 'jodit-react';
 const BlogPage = () => {
     const [posts, setPosts] = useState([]);
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(true);
     const { user } = useContext(AuthContext);
+
+    const editorConfig = useMemo(() => ({
+        readonly: false, // cho phép chỉnh sửa
+        height: 200,
+        placeholder: 'Chia sẻ câu chuyện hoặc đặt câu hỏi...',
+        // Cấu hình toolbar tương tự như TinyMCE
+        buttons: [
+            'bold', 'italic', 'underline', '|',
+            'ul', 'ol', '|',
+            'link', 'emoji'
+        ],
+        // Ẩn các thông báo ở thanh trạng thái
+        showCharsCounter: false,
+        showWordsCounter: false,
+        showXPathInStatusbar: false,
+        iframeStyle: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size:1rem }'
+    }), []);
 
     const fetchPosts = async () => {
         try {
@@ -27,7 +44,7 @@ const BlogPage = () => {
         fetchPosts();
     }, []);
 
-    const handleContentChange = (newContent, editor) => {
+    const handleContentChange = (newContent) => {
         setContent(newContent);
     };
 
@@ -77,18 +94,14 @@ const BlogPage = () => {
                                 <p>Chào {user.name}, bạn đang nghĩ gì?</p>
                             </div>
                             <form onSubmit={handleCreatePost}>
-                                <Editor
-                                    apiKey="your-api-key"
+                                <JoditEditor
                                     value={content}
-                                    init={{
-                                        height: 200,
-                                        menubar: false,
-                                        plugins: 'autolink lists link emoticons',
-                                        toolbar: 'bold italic underline | bullist numlist | link emoticons',
-                                        placeholder: 'Chia sẻ câu chuyện hoặc đặt câu hỏi...',
-                                        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size:1rem }'
-                                    }}
-                                    onEditorChange={handleContentChange}
+                                    config={editorConfig}
+                                    tabIndex={1} // optional
+                                    // onBlur: Cập nhật state khi người dùng click ra ngoài
+                                    onBlur={handleContentChange}
+                                // Hoặc dùng onChange: Cập nhật state sau mỗi lần gõ
+                                // onChange={handleContentChange} 
                                 />
                                 <div className="create-post-actions">
                                     <button type="submit" className="post-submit-btn">Đăng bài</button>
