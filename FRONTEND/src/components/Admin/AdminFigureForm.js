@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import axios from 'axios';
@@ -6,7 +6,8 @@ import './AdminCommon.css';
 import FullScreenLoader from '../Common/FullScreenLoader';
 import { notifySuccess, notifyError } from '../../services/notificationService';
 import FileUpload from '../Common/FileUpload';
-import { Editor } from '@tinymce/tinymce-react';
+// import { Editor } from '@tinymce/tinymce-react';
+import JoditEditor from 'jodit-react';
 
 const AdminFigureForm = () => {
     const { id } = useParams();
@@ -23,6 +24,28 @@ const AdminFigureForm = () => {
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+
+    const editorConfig = useMemo(() => ({
+        readonly: false,
+        height: 350,
+        placeholder: 'Nhập tiểu sử, mô tả chi tiết nhân vật...',
+        buttons: [
+            'undo', 'redo', '|',
+            'bold', 'italic', 'underline', 'strikethrough', '|',
+            'brush', // Tương đương 'forecolor'
+            'paragraph', // Tương đương 'blocks'
+            'align', 'outdent', 'indent', '|',
+            'ul', 'ol', '|',
+            'link', 'image', 'media', 'table', '|', // 'media' (cho video/audio), 'image', 'table'
+            'source', 'fullsize', 'preview', // 'source' (code), 'fullsize' (fullscreen), 'preview'
+            'help'
+        ],
+        showCharsCounter: false,
+        showWordsCounter: false,
+        showXPathInStatusbar: false,
+        // Style cho nội dung bên trong editor
+        iframeStyle: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 1rem; }'
+    }), []);
 
     useEffect(() => {
         const fetchFigureData = async () => {
@@ -48,14 +71,15 @@ const AdminFigureForm = () => {
         fetchFigureData();
     }, [id, isEditing, navigate]);
 
+    const handleDescriptionChange = (newContent) => {
+        setFigure(prev => ({ ...prev, description: newContent }));
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFigure(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleDescriptionChange = (content, editor) => {
-        setFigure(prev => ({ ...prev, description: content }));
-    };
 
     const handleImageUpload = async (files) => {
         if (!files || files.length === 0) return;
@@ -133,16 +157,12 @@ const AdminFigureForm = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Tiểu sử / Mô tả</label>
-                                    <Editor
-                                        apiKey="flsyfec8qkmij2131x49jdx6tsl0hpjzl4060chgie1u6rt1" // <-- THAY BẰNG API KEY CỦA BẠN
+                                    <JoditEditor
                                         value={figure.description}
-                                        init={{
-                                            height: 350,
-                                            menubar: true,
-                                            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
-                                            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
-                                        }}
-                                        onEditorChange={handleDescriptionChange}
+                                        config={editorConfig}
+                                        tabIndex={1} // optional
+                                        onBlur={handleDescriptionChange} // Cập nhật khi blur
+                                    // Hoặc: onChange={handleDescriptionChange} // Cập nhật mỗi khi gõ
                                     />
                                 </div>
                             </div>

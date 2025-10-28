@@ -196,3 +196,153 @@
     background-color: #2c3e50;
     color: white;
 }
+
+
+/* =========================================
+  (MỚI) CSS CHO GALLERY SECTION
+=========================================
+*/
+.gallery-section {
+    padding: 80px 0; /* Để carousel tràn viền ngang */
+    /* .section-title đã được định nghĩa ở trên */
+}
+
+/* Điều chỉnh lại margin-bottom cho .section-title khi nằm trong .gallery-section */
+.gallery-section .section-title {
+    margin-bottom: 40px; 
+}
+
+.carousel-wrapper {
+    max-width: 100%; /* Cho phép carousel tràn viền */
+    margin: 0 auto;
+}
+
+/* Thẻ bọc ngoài mỗi slide */
+.gallery-slide-item {
+    padding: 0 10px; /* Khoảng cách giữa các ảnh */
+    box-sizing: border-box;
+    height: 450px; /* Cố định chiều cao */
+}
+
+/* Ảnh bên trong */
+.gallery-slide-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Đảm bảo ảnh lấp đầy khung */
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.gallery-slide-item:hover img {
+    transform: scale(1.02); /* Hiệu ứng zoom nhẹ */
+}
+
+/* Ghi đè CSS của thư viện (quan trọng) */
+.gallery-carousel.carousel-root {
+    outline: none;
+}
+
+/* Tùy chỉnh Tiêu đề (Legend) */
+.gallery-carousel .legend {
+    position: absolute;
+    bottom: 25px !important; 
+    left: 50% !important;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.65) !important;
+    color: #fff !important;
+    padding: 10px 18px !important;
+    border-radius: 8px;
+    font-size: 1rem !important;
+    width: auto !important;
+    opacity: 1 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Tùy chỉnh Dấu chấm (Indicators) */
+.gallery-carousel .control-dots .dot {
+    /* background: #ccc !important; */
+    box-shadow: none !important;
+    width: 10px !important;
+    height: 10px !important;
+    margin: 0 6px !important;
+}
+
+.gallery-carousel .control-dots .dot.selected {
+    /* (Bạn có thể thay var(--text-color) bằng màu cụ thể nếu biến đó không tồn tại) */
+    background: var(--text-color, #c2410c) !important; 
+    transform: scale(1.2);
+}
+.gallery-carousel .control-arrow {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    top: 50% !important;
+    transform: translateY(-50%);
+    opacity: 0.8 !important;
+    transition: opacity 0.2s ease;
+}
+.gallery-carousel .control-arrow:hover {
+    opacity: 1 !important;
+}
+.gallery-carousel .control-arrow:before {
+    content: "" !important;
+    border: solid transparent !important; /* Reset border */
+    padding: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-width: 0 !important; 
+}
+
+/* 3. ĐỊNH NGHĨA ICON BÊN TRÁI (PREV <) */
+.gallery-carousel .control-prev:before {
+    border-right: 10px solid #333 !important; /* Tạo hình < */
+    border-top: 10px solid transparent !important;
+    border-bottom: 10px solid transparent !important;
+    margin-right: -5px; /* Căn giữa icon */
+}
+
+/* 4. ĐỊNH NGHĨA ICON BÊN PHẢI (NEXT >) */
+.gallery-carousel .control-next:before {
+    border-left: 10px solid #333 !important; /* Tạo hình > */
+    border-top: 10px solid transparent !important;
+    border-bottom: 10px solid transparent !important;
+    margin-left: -5px; /* Căn giữa icon */
+}
+/* =========================================
+  RESPONSIVE CHO GALLERY SECTION
+=========================================
+*/
+@media (max-width: 992px) {
+    /* Tablet: Hiển thị 2 ảnh */
+    .gallery-carousel .carousel .slide {
+        min-width: 50% !important;
+        max-width: 50% !important;
+    }
+    .gallery-slide-item {
+        height: 400px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Mobile: Hiển thị 1 ảnh (và 1 phần) */
+    .gallery-carousel .carousel .slide {
+        min-width: 80% !important;
+        max-width: 80% !important;
+    }
+    .gallery-slide-item {
+        height: 320px;
+        padding: 0 8px;
+    }
+
+    /* Ẩn mũi tên trên di động (dùng vuốt) */
+    .gallery-carousel .control-arrow {
+        display: none !important;
+    }
+
+    .gallery-carousel .legend {
+        font-size: 0.9rem !important;
+        padding: 8px 12px !important;
+        bottom: 20px !important;
+    }
+}

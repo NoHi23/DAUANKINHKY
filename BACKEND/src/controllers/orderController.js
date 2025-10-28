@@ -71,7 +71,6 @@ exports.createOrder = async (req, res) => {
             const accountName = process.env.VIETQR_ACCOUNT_NAME;
 
             const productNames = orderItems.map(item => item.product.name).join(', ');
-
             const description = `Thanh toán: ${productNames}`;
 
             const qrImageUrl = `https://api.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
@@ -79,7 +78,7 @@ exports.createOrder = async (req, res) => {
             qrData = {
                 qrImageUrl,
                 amount: totalAmount,
-                description: order._id.toString()
+                description: productNames
             };
 
             order.qrData = qrData; // lưu vào DB

@@ -1,63 +1,289 @@
+/* Container chính */
 .order-history-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 0 20px;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
 }
 
+/* Thẻ đơn hàng */
 .order-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  margin-bottom: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
 }
 
-.order-header,
-.order-footer {
-  padding: 15px 20px;
-  background: #f8f9fa;
-  display: flex;
-  justify-content: space-between;
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+.order-header span:first-child {
+    font-weight: 600;
+    color: #374151;
 }
 
 .order-body {
-  padding: 20px;
+    padding: 20px;
 }
 
 .order-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #f1f1f1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e5e7eb;
 }
-
 .order-item:last-child {
-  border-bottom: none;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.order-item span:first-child {
+    color: #4b5563;
+}
+.order-item span:last-child {
+    font-weight: 500;
+    color: #1f2937;
 }
 
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Cho phép xuống dòng trên di động */
+    gap: 15px;
+    padding: 15px 20px;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+.order-footer strong {
+    font-size: 1.1em;
+    color: #c2410c; /* Màu cam đậm cho tổng tiền */
+}
+
+/* CSS cho các Trạng thái (Status) */
 .status {
-  font-weight: bold;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: white;
-  text-transform: capitalize;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px; /* bo tròn */
+    font-size: 0.85em;
+    color: white;
+    text-transform: capitalize; /* Tự động viết hoa chữ cái đầu */
+}
+.status-pending { background-color: #f59e0b; /* Vàng cam */ }
+.status-processing { background-color: #3b82f6; /* Xanh dương */ }
+.status-shipped { background-color: #10b981; /* Xanh lá */ }
+.status-delivered { background-color: #14b8a6; /* Xanh mòng két */ }
+.status-cancelled { background-color: #ef4444; /* Đỏ */ }
+
+/* CSS cho khu vực hành động (Nút bấm) */
+.order-actions {
+    display: flex;
+    gap: 10px;
 }
 
-.status-pending {
-  background-color: #f39c12;
+/* Nút/Link chung */
+.view-bill-link,
+.upload-bill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-family: inherit; /* Đảm bảo dùng font chung */
 }
 
-.status-processing {
-  background-color: #3498db;
+/* Link xem biên lai */
+.view-bill-link {
+    background-color: #e0f2fe; /* Xanh nhạt */
+    color: #0c4a6e;
+    border-color: #bae6fd;
+}
+.view-bill-link:hover {
+    background-color: #bae6fd;
 }
 
-.status-shipped {
-  background-color: #2ecc71;
+/* Nút tải lên / Cập nhật */
+.upload-bill-btn {
+    background-color: #ffedd5; /* Cam nhạt */
+    color: #9a3412;
+    border-color: #fed7aa;
+}
+.upload-bill-btn:hover {
+    background-color: #fed7aa;
+}
+.upload-bill-btn:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    border-color: #e5e7eb;
 }
 
-.status-delivered {
-  background-color: #1abc9c;
+/* Trạng thái chờ xác nhận */
+.status-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
 }
 
-.status-cancelled {
-  background-color: #e74c3c;
+/* (QUAN TRỌNG) CSS cho Modal xem ảnh */
+.image-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Tối hơn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    cursor: zoom-out;
+}
+
+.image-preview-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* Thêm animation */
+    animation: zoomIn 0.3s ease-out;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ... CSS cũ của bạn ... */
+
+/* (QUAN TRỌNG) CSS cho Modal xem ảnh */
+.image-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* CSS cho modal XEM LẠI (click để đóng) */
+.image-preview-modal > img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    cursor: zoom-out;
+    animation: zoomIn 0.3s ease-out;
+}
+
+/* (MỚI) CSS cho modal XEM TRƯỚC (có nút) */
+.preview-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90%;
+    max-height: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.3s ease-out;
+}
+
+/* Ảnh bên trong modal XEM TRƯỚC */
+.preview-content img {
+    max-width: 100%;
+    max-height: 70vh; /* Giới hạn chiều cao ảnh */
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Các nút hành động (Hủy, Xác nhận) */
+.preview-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+.preview-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.preview-actions .btn-cancel {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.preview-actions .btn-cancel:hover {
+    background-color: #e5e7eb;
+}
+
+.preview-actions .btn-confirm {
+    background-color: #2563eb; /* Màu xanh */
+    color: #fff;
+    border: 1px solid #2563eb;
+}
+.preview-actions .btn-confirm:hover {
+    background-color: #1d4ed8;
+}
+.preview-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* Animation chung */
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

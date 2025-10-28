@@ -29,8 +29,8 @@ const OrderDetailModal = ({ order, onClose }) => {
               <h4><i className="fa-solid fa-user"></i> Thông tin khách hàng</h4>
               <p><strong>Tên:</strong> {order.user?.name}</p>
               <p><strong>Email:</strong> {order.user?.email}</p>
-              <p><strong>Điện thoại:</strong> {order.shippingAddress?.phone}</p>
-              <p><strong>Địa chỉ giao hàng:</strong> {order.shippingAddress?.address}</p>
+              <p><strong>Điện thoại:</strong> {order?.phone}</p>
+              <p><strong>Địa chỉ giao hàng:</strong> {order?.shippingAddress}</p>
             </div>
             <div className="detail-section">
               <h4><i className="fa-solid fa-file-invoice-dollar"></i> Thông tin đơn hàng</h4>
